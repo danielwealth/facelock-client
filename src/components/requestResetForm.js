@@ -2,7 +2,7 @@
 function RequestResetForm() {
   const [email, setEmail] = useState('');
   const handleRequest = async () => {
-    await fetch('http://localhost:5000/request-reset', {
+    await fetch('https://facelockserver.onrender.com/request-reset', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
