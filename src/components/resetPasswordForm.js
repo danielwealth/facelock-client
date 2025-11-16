@@ -2,7 +2,7 @@
 function ResetPasswordForm({ token }) {
   const [newPassword, setNewPassword] = useState('');
   const handleReset = async () => {
-    await fetch(`http://localhost:5000/reset-password/${token}`, {
+    await fetch(`https://facelockserver.onrender.com/reset-password/${token}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newPassword }),
