@@ -6,7 +6,7 @@ function ImageViewer() {
 
   useEffect(() => {
     const fetchImages = async () => {
-      const resp = await fetch('http://localhost:5000/unlocked-images', {
+      const resp = await fetch('https://facelockserver.onrender.com/unlocked-images', {
         credentials: 'include', // send cookies/session
       });
       const data = await resp.json();
@@ -19,7 +19,7 @@ function ImageViewer() {
   return (
     <div className="grid grid-cols-2 gap-4 p-4">
       {images.map((imgPath, i) => (
-        <img key={i} src={`http://localhost:5000/${imgPath}`} alt={`Unlocked ${i}`} className="rounded shadow" />
+        <img key={i} src={`https://facelockserver.onrender.com/${imgPath}`} alt={`Unlocked ${i}`} className="rounded shadow" />
       ))}
     </div>
   );
