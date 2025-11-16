@@ -6,7 +6,7 @@ function LoginForm() {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    await fetch('http://localhost:5000/login', {
+    await fetch('https://facelockserver.onrender.com/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
