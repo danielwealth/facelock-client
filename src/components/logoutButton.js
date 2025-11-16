@@ -3,7 +3,7 @@ import React from 'react';
 
 function LogoutButton() {
   const handleLogout = async () => {
-    await fetch('http://localhost:5000/logout', {
+    await fetch('https://facelockserver.onrender.com/logout', {
       method: 'POST',
       credentials: 'include',
     });
