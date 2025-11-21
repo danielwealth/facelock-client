@@ -1,21 +1,29 @@
 // client/src/components/LogoutButton.js
-import React, { useState } from 'react';
+import React from 'react';
+import { View, Button, Text } from 'react-native-web';
 
-function LogoutButton() {
+export default function LogoutButton() {
+  const [message, setMessage] = React.useState('');
+
   const handleLogout = async () => {
-    await fetch('https://facelockserver.onrender.com/logout', {
-      method: 'POST',
-      credentials: 'include',
-    });
-    alert('Logged out');
-    window.location.reload();
+    try {
+      await fetch('https://facelockserver.onrender.com/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      setMessage('Logged out');
+      // Instead of window.location.reload, use React Router navigation
+      // e.g. with useNavigate hook: navigate('/login');
+    } catch (err) {
+      console.error(err);
+      setMessage('Logout failed');
+    }
   };
 
   return (
-    <button onClick={handleLogout} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
-      Logout
-    </button>
+    <View style={{ marginTop: 16 }}>
+      <Button title="Logout" color="#d32f2f" onPress={handleLogout} />
+      {message ? <Text style={{ marginTop: 8 }}>{message}</Text> : null}
+    </View>
   );
 }
-
-export default LogoutButton;
