@@ -49,3 +49,4 @@ export default function ImageUpload() {
     </View>
   );
 }
+export default ImageUpload;
