@@ -136,4 +136,4 @@ export default function ResetPasswordForm({ token }) {
     </View>
   );
 }
-export default ResetPasswordForm;
+
