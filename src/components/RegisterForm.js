@@ -57,4 +57,3 @@ export default function RegisterForm() {
     </View>
   );
 }
-export default RegisterForm;
