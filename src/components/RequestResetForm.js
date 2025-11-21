@@ -1,5 +1,5 @@
 // client/src/components/RequestResetForm.js
-import { View, Text } from 'react-native-web';
+import React, { useState } from 'react';
 function RequestResetForm() {
   const [email, setEmail] = useState('');
   const handleRequest = async () => {
