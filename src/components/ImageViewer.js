@@ -1,6 +1,5 @@
 // client/src/components/ImageViewer.js
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native-web';
 
 function ImageViewer() {
   const [images, setImages] = useState([]);
