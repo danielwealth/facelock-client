@@ -1,5 +1,5 @@
 // client/src/components/Dashboard.js
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native-web';
 import ImageViewer from './ImageViewer';
 import MatchHistory from './MatchHistory';
 import BiometricSettings from './BiometricSettings';
