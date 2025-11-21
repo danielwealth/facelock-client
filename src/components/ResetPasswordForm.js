@@ -17,3 +17,4 @@ function ResetPasswordForm({ token }) {
     </div>
   );
 }
+export default PasswordForm;
