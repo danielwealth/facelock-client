@@ -60,4 +60,3 @@ export default function LoginForm() {
     </View>
   );
 }
-export default LoginForm;
