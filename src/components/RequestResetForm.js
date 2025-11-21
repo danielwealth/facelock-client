@@ -17,3 +17,4 @@ function RequestResetForm() {
     </div>
   );
 }
+export default RequestResetForm;
