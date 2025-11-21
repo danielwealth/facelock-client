@@ -1,28 +1,52 @@
 // client/src/components/ImageViewer.js
 import React, { useEffect, useState } from 'react';
+import { View, Image, StyleSheet } from 'react-native-web';
 
-function ImageViewer() {
+export default function ImageViewer() {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
     const fetchImages = async () => {
-      const resp = await fetch('https://facelockserver.onrender.com/unlocked-images', {
-        credentials: 'include', // send cookies/session
-      });
-      const data = await resp.json();
-      setImages(data);
+      try {
+        const resp = await fetch('https://facelockserver.onrender.com/unlocked-images', {
+          credentials: 'include', // send cookies/session
+        });
+        const data = await resp.json();
+        setImages(data);
+      } catch (err) {
+        console.error('Failed to fetch images', err);
+      }
     };
 
     fetchImages();
   }, []);
 
   return (
-    <div className="grid grid-cols-2 gap-4 p-4">
+    <View style={styles.container}>
       {images.map((imgPath, i) => (
-        <img key={i} src={`https://facelockserver.onrender.com/${imgPath}`} alt={`Unlocked ${i}`} className="rounded shadow" />
+        <Image
+          key={i}
+          source={{ uri: `https://facelockserver.onrender.com/${imgPath}` }}
+          style={styles.image}
+        />
       ))}
-    </div>
+    </View>
   );
 }
 
-export default ImageViewer;
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 16,
+    gap: 16, // supported in RN Web for spacing
+  },
+  image: {
+    width: 150,
+    height: 150,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+});
