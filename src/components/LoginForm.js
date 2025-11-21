@@ -1,4 +1,5 @@
 // client/src/components/LoginForm.js
+import { View, Text } from 'react-native-web';
 import React, { useState } from 'react';
 
 function LoginForm() {
