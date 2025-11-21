@@ -13,3 +13,4 @@ export default function BiometricSettings() {
     </View>
   );
 }
+export default BiometricSettings;
