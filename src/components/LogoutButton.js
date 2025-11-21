@@ -27,4 +27,3 @@ export default function LogoutButton() {
     </View>
   );
 }
-export default LogoutButton;
