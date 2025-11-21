@@ -1,6 +1,5 @@
 // ImageUpload.js
 import React, { useState } from 'react';
-import { View, Text } from 'react-native-web';
 
 function ImageUpload() {
   const [image, setImage] = useState(null);
