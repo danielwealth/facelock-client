@@ -1,5 +1,5 @@
 // client/src/components/LogoutButton.js
-import { View, Text } from 'react-native-web';
+import React, { useState } from 'react';
 
 function LogoutButton() {
   const handleLogout = async () => {
