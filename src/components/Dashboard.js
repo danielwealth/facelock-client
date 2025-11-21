@@ -19,4 +19,3 @@ export default function Dashboard() {
     </View>
   );
 }
-export default Dashboard;
