@@ -1,33 +1,33 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import dashboard from './components/dashboard';
-import imageUpload from './components/imageUpload';
-import imageViewer from './components/imageViewer';
-import biometricUnlock from './components/biometricUnlock';
-import biometricSettings from './components/biometricSettings';
-import loginForm from './components/loginForm';
-import logoutButton from './components/logoutButton';
-import matchHistory from './components/matchHistory';
-import registerForm from './components/registerForm';
-import requestResetForm from './components/requestResetForm';
-import resetPasswordForm from './components/resetPasswordForm';
+import Dashboard from './components/Dashboard';
+import ImageUpload from './components/ImageUpload';
+import ImageViewer from './components/ImageViewer';
+import BiometricUnlock from './components/BiometricUnlock';
+import BiometricSettings from './components/BiometricSettings';
+import LoginForm from './components/LoginForm';
+import LogoutButton from './components/LogoutButton';
+import MatchHistory from './components/MatchHistory';
+import RegisterForm from './components/RegisterForm';
+import RequestResetForm from './components/RequestResetForm';
+import ResetPasswordForm from './components/ResetPasswordForm';
 
 function App() {
   return (
     <Router>
-    <Routes>
-      <Route path="/" element={<dashboard />}/>
-      <Route path="/" element={<imageUpload/>} />
-      <Route path="/" element={<imageViewer/>} />
-      <Route path="/" element={<biometricUnlock />}/>
-      <Route path="/" element={<biometricSettings/>} />
-      <Route path="/" element={<loginForm />}/>
-      <Route path="/" element={<logoutButton />}/>
-      <Route path="/" element={<matchHistory />}/>
-      <Route path="/" element={<registerForm />}/>
-      <Route path="/" element={<requestResetForm />}/>
-      <Route path="/" element={<resetPasswordForm />}/>
-  </Routes>
-  </Router>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/upload" element={<ImageUpload />} />
+        <Route path="/viewer" element={<ImageViewer />} />
+        <Route path="/unlock" element={<BiometricUnlock />} />
+        <Route path="/settings" element={<BiometricSettings />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/logout" element={<LogoutButton />} />
+        <Route path="/history" element={<MatchHistory />} />
+        <Route path="/register" element={<RegisterForm />} />
+        <Route path="/request-reset" element={<RequestResetForm />} />
+        <Route path="/reset-password" element={<ResetPasswordForm />} />
+      </Routes>
+    </Router>
   );
 }
 
