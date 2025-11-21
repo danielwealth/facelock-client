@@ -1,4 +1,5 @@
 // client/src/components/MatchHistory.js
+import { View, Text } from 'react-native-web';
 import React, { useEffect, useState } from 'react';
 
 function MatchHistory() {

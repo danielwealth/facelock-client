@@ -1,4 +1,6 @@
 // client/src/components/ResetPasswordForm.js
+import { View, Text } from 'react-native-web';
+import { View, Text, TouchableOpacity } from 'react-native';
 function ResetPasswordForm({ token }) {
   const [newPassword, setNewPassword] = useState('');
   const handleReset = async () => {

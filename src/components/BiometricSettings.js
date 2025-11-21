@@ -1,6 +1,5 @@
 // client/src/components/BiometricSettings.tsx
-import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text } from 'react-native-web';
 import BiometricUnlock from './BiometricUnlock';
 
 export default function BiometricSettings() {
