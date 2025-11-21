@@ -43,3 +43,5 @@ export default function RequestResetForm() {
     </View>
   );
 }
+export default RequestResetForm;
+
