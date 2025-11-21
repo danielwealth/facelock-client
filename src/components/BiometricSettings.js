@@ -1,5 +1,4 @@
 // client/src/components/BiometricSettings.tsx
-import React from 'react';
 import { View, Text } from 'react-native';
 import BiometricUnlock from './BiometricUnlock';
 
