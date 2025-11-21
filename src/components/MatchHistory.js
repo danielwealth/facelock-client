@@ -53,3 +53,4 @@ const styles = StyleSheet.create({
     paddingLeft: 12,
   },
 });
+export default MatchHistory;
