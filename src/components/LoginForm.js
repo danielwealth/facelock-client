@@ -9,7 +9,7 @@ export default function LoginForm() {
 
   const handleLogin = async () => {
     try {
-      const resp = await fetch('https://facelockserver.onrender.com/login', {
+      const resp = await fetch(`${process.env.API_URL}/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
