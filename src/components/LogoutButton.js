@@ -7,7 +7,7 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     try {
-      await fetch('https://facelockserver.onrender.com/logout', {
+      await fetch(`${process.env.API_URL}/logout', {
         method: 'POST',
         credentials: 'include',
       });
