@@ -13,7 +13,7 @@ export default function BiometricAuth() {
 
       const authResp = await startAuthentication(options);
 
-      const verifyResp = await fetch(`${process.env.API_URL}/verify-authentication', {
+      const verifyResp = await fetch(`${process.env.API_URL}/verify-authentication`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(authResp),
@@ -21,7 +21,7 @@ export default function BiometricAuth() {
 
       const result = await verifyResp.json();
       if (result.success) {
-        const imagesResp = await fetch('https://facelockserver.onrender.com/unlocked-images');
+        const imagesResp = await fetch(`https://facelockserver.onrender.com/unlocked-images`);
         const unlocked = await imagesResp.json();
         setImages(unlocked);
         setMessage('Access granted');
