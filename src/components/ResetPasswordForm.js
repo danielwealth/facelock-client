@@ -8,7 +8,7 @@ export default function ResetPasswordForm({ token }) {
 
   const handleReset = async () => {
     try {
-      const resp = await fetch(`https://facelockserver.onrender.com/reset-password/${token}`, {
+      const resp = await fetch(`${process.env.API_URL}/reset-password/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword }),
