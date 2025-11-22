@@ -8,7 +8,7 @@ export default function RequestResetForm() {
 
   const handleRequest = async () => {
     try {
-      const resp = await fetch(`${process.env.API_URL}/request-reset', {
+      const resp = await fetch(`${process.env.API_URL}/request-reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
