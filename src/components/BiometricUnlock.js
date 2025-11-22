@@ -8,7 +8,7 @@ export default function BiometricAuth() {
 
   const authenticate = async () => {
     try {
-      const resp = await fetch(`${process.env.API_URL}/generate-authentication-options');
+      const resp = await fetch(`${process.env.API_URL}/generate-authentication-options`);
       const options = await resp.json();
 
       const authResp = await startAuthentication(options);
