@@ -9,7 +9,7 @@ export default function RegisterForm() {
 
   const handleRegister = async () => {
     try {
-      const resp = await fetch(`${process.env.API_URL}/register', {
+      const resp = await fetch(`${process.env.API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
