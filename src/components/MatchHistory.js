@@ -8,7 +8,7 @@ export default function MatchHistory() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const resp = await fetch('https://facelockserver.onrender.com/match-history', {
+        const resp = await fetch(`${process.env.API_URL}/match-history', {
           credentials: 'include',
         });
         const data = await resp.json();
