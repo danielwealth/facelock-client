@@ -16,7 +16,7 @@ export default function ImageUpload() {
     formData.append('image', image);
     formData.append('passcode', passcode);
 
-    await fetch('${process.env.API_URL}/upload', {
+    await fetch(`${process.env.API_URL}/upload`, {
       method: 'POST',
       body: formData,
     });
