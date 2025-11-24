@@ -1,46 +1,76 @@
-// client/src/components/RequestResetForm.js
+// client/src/components/RegisterForm.js
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text } from 'react-native-web';
+import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
+import { useNavigate } from 'react-router-dom';
 
-export default function RequestResetForm() {
+export default function RegisterForm() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
-  const handleRequest = async () => {
+  const handleRegister = async () => {
+    if (!email || !password) {
+      setMessage('Please enter both email and password');
+      return;
+    }
+
     try {
-      const resp = await fetch(`${process.env.API_URL}/request-reset`, {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
       });
 
+      const data = await resp.json();
+
       if (resp.ok) {
-        setMessage('Reset link sent');
+        setMessage('Registered!');
+        navigate('/login'); // ✅ redirect to login after success
       } else {
-        setMessage('Failed to send reset link');
+        setMessage(data.error || 'Registration failed');
       }
     } catch (err) {
       console.error(err);
-      setMessage('Error sending reset link');
+      setMessage('Error registering');
     }
   };
 
   return (
-    <View style={{ padding: 16 }}>
+    <View style={styles.container}>
       <TextInput
-        placeholder="Enter your email"
+        placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        style={{
-          borderWidth: 1,
-          borderColor: '#ccc',
-          padding: 8,
-          marginBottom: 12,
-        }}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        style={styles.input}
       />
-      <Button title="Request Reset" onPress={handleRequest} />
-      {message ? <Text style={{ marginTop: 12 }}>{message}</Text> : null}
+      <TextInput
+        placeholder="Password"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+        style={styles.input}
+      />
+      <Button title="Register" onPress={handleRegister} />
+      {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    marginBottom: 12,
+  },
+  message: {
+    marginTop: 12,
+  },
+});
