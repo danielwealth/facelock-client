@@ -8,7 +8,7 @@ export default function MatchHistory() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const resp = await fetch(`${process.env.API_URL}/match-history`, {
+        const resp = await fetch(`${process.env.REACT_APP_API_URI}/match-history`, {
           credentials: 'include',
         });
         const data = await resp.json();
@@ -22,6 +22,7 @@ export default function MatchHistory() {
 
   const renderItem = ({ item }) => (
     <Text style={styles.listItem}>
+      {/* Adjust keys if backend returns different structure */}
       {item.name} matched on {new Date(item.timestamp).toLocaleString()}
     </Text>
   );
