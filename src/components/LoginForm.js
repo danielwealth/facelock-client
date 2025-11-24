@@ -1,15 +1,17 @@
 // client/src/components/LoginForm.js
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text } from 'react-native-web';
+import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
-      const resp = await fetch(`${process.env.API_URL}/login`, {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -18,9 +20,7 @@ export default function LoginForm() {
 
       if (resp.ok) {
         setMessage('Logged in!');
-        // Instead of window.location.href, use React Router navigation
-        // e.g. with useNavigate hook in react-router-dom
-        // navigate('/dashboard');
+        navigate('/dashboard'); // ✅ use React Router navigation
       } else {
         setMessage('Login failed');
       }
@@ -31,32 +31,37 @@ export default function LoginForm() {
   };
 
   return (
-    <View style={{ padding: 16 }}>
+    <View style={styles.container}>
       <TextInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        style={{
-          borderWidth: 1,
-          borderColor: '#ccc',
-          padding: 8,
-          marginBottom: 12,
-        }}
+        style={styles.input}
       />
       <TextInput
         placeholder="Password"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
-        style={{
-          borderWidth: 1,
-          borderColor: '#ccc',
-          padding: 8,
-          marginBottom: 12,
-        }}
+        style={styles.input}
       />
       <Button title="Login" onPress={handleLogin} />
-      {message ? <Text style={{ marginTop: 12 }}>{message}</Text> : null}
+      {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    marginBottom: 12,
+  },
+  message: {
+    marginTop: 12,
+  },
+});
