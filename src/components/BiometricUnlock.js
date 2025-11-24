@@ -1,19 +1,21 @@
+// client/src/components/BiometricAuth.tsx
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList } from 'react-native-web';
-import { startAuthentication } from '@simplewebauthn/browser'; // adjust import if needed
+import { View, Text, Button, FlatList, StyleSheet } from 'react-native-web';
+import { startAuthentication } from '@simplewebauthn/browser';
 
 export default function BiometricAuth() {
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<string[]>([]);
   const [message, setMessage] = useState('');
 
   const authenticate = async () => {
     try {
-      const resp = await fetch(`${process.env.API_URL}/generate-authentication-options`);
+      // Use REACT_APP_ prefix for frontend env vars
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/generate-authentication-options`);
       const options = await resp.json();
 
       const authResp = await startAuthentication(options);
 
-      const verifyResp = await fetch(`${process.env.API_URL}/verify-authentication`, {
+      const verifyResp = await fetch(`${process.env.REACT_APP_API_URI}/verify-authentication`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(authResp),
@@ -21,7 +23,7 @@ export default function BiometricAuth() {
 
       const result = await verifyResp.json();
       if (result.success) {
-        const imagesResp = await fetch(`https://facelockserver.onrender.com/unlocked-images`);
+        const imagesResp = await fetch(`${process.env.REACT_APP_API_URI}/unlocked-images`);
         const unlocked = await imagesResp.json();
         setImages(unlocked);
         setMessage('Access granted');
@@ -35,9 +37,9 @@ export default function BiometricAuth() {
   };
 
   return (
-    <View style={{ padding: 20 }}>
+    <View style={styles.container}>
       <Button title="Authenticate" onPress={authenticate} />
-      {message ? <Text style={{ marginTop: 10 }}>{message}</Text> : null}
+      {message ? <Text style={styles.message}>{message}</Text> : null}
       <FlatList
         data={images}
         keyExtractor={(item, index) => index.toString()}
@@ -47,3 +49,11 @@ export default function BiometricAuth() {
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+  message: {
+    marginTop: 10,
+  },
+});
