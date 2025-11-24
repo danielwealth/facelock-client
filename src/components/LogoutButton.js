@@ -1,19 +1,20 @@
 // client/src/components/LogoutButton.js
-import React from 'react';
-import { View, Button, Text } from 'react-native-web';
+import React, { useState } from 'react';
+import { View, Button, Text, StyleSheet } from 'react-native-web';
+import { useNavigate } from 'react-router-dom';
 
 export default function LogoutButton() {
-  const [message, setMessage] = React.useState('');
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await fetch(`${process.env.API_URL}/logout`, {
+      await fetch(`${process.env.REACT_APP_API_URI}/logout`, {
         method: 'POST',
         credentials: 'include',
       });
       setMessage('Logged out');
-      // Instead of window.location.reload, use React Router navigation
-      // e.g. with useNavigate hook: navigate('/login');
+      navigate('/login'); // ✅ redirect to login page
     } catch (err) {
       console.error(err);
       setMessage('Logout failed');
@@ -21,9 +22,18 @@ export default function LogoutButton() {
   };
 
   return (
-    <View style={{ marginTop: 16 }}>
+    <View style={styles.container}>
       <Button title="Logout" color="#d32f2f" onPress={handleLogout} />
-      {message ? <Text style={{ marginTop: 8 }}>{message}</Text> : null}
+      {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 16,
+  },
+  message: {
+    marginTop: 8,
+  },
+});
