@@ -1,6 +1,6 @@
 // client/src/components/ImageUpload.js
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text } from 'react-native-web';
+import { View, Text, TextInput, Button } from 'react-native-web';
 
 export default function ImageUpload() {
   const [passcode, setPasscode] = useState('');
@@ -16,21 +16,30 @@ export default function ImageUpload() {
     formData.append('image', image);
     formData.append('passcode', passcode);
 
-    await fetch(`${process.env.API_URL}/upload`, {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const resp = await fetch(`${process.env.REACT_APP_API_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await resp.json();
+      console.log('Uploaded:', data);
+    } catch (err) {
+      console.error('Upload failed:', err);
+    }
   };
 
   return (
     <View style={{ padding: 16 }}>
       <Text style={{ marginBottom: 8 }}>Select an image:</Text>
-      {/* For web, you can still use an <input type="file"> wrapped in a View */}
-      <input
-        type="file"
-        onChange={e => setImage(e.target.files[0])}
-        style={{ marginBottom: 12 }}
-      />
+
+      {/* RN-Web doesn't have file picker, so we embed HTML input */}
+      <View style={{ marginBottom: 12 }}>
+        <input
+          type="file"
+          onChange={e => setImage(e.target.files[0])}
+          style={{ marginBottom: 12 }}
+        />
+      </View>
 
       <TextInput
         secureTextEntry
