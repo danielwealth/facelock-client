@@ -8,7 +8,7 @@ export default function ImageViewer() {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const resp = await fetch(`${process.env.API_URL}/unlocked-images`, {
+        const resp = await fetch(`${process.env.REACT_APP_API_URI}/unlocked-images`, {
           credentials: 'include', // send cookies/session
         });
         const data = await resp.json();
@@ -26,7 +26,7 @@ export default function ImageViewer() {
       {images.map((imgPath, i) => (
         <Image
           key={i}
-          source={{ uri: `${process.env.API_URL}/${imgPath}` }}
+          source={{ uri: `${process.env.REACT_APP_API_URI}/${imgPath}` }}
           style={styles.image}
         />
       ))}
@@ -39,12 +39,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     padding: 16,
-    gap: 16, // supported in RN Web for spacing
   },
   image: {
     width: 150,
     height: 150,
     borderRadius: 8,
+    marginRight: 16,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 4,
