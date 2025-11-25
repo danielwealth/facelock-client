@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { View, Text, Button, FlatList, StyleSheet } from 'react-native-web';
 import { startAuthentication } from '@simplewebauthn/browser';
 
-export default function BiometricUnlock.tsx() {
+export default function BiometricUnlock() {
   const [images, setImages] = useState<string[]>([]);
   const [message, setMessage] = useState('');
 
