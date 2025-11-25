@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "lockfileVersion": 3,
   "requires": true,
+   "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
+  },
   "packages": {
     "": {
       "name": "server",
