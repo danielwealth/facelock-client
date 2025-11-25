@@ -18,7 +18,7 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/upload" element={<ImageUpload />} />
         <Route path="/viewer" element={<ImageViewer />} />
-        <Route path="/unlock" element={<BiometricUnlock />} />
+        <Route path="/unlock" element={<BiometricUnlock.tsx />} />
         <Route path="/settings" element={<BiometricSettings />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/logout" element={<LogoutButton />} />
