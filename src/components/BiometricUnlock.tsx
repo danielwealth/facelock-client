@@ -1,6 +1,8 @@
 // client/src/components/BiometricUnlock.tsx
 import React, { useState } from 'react';
 import { View, Text, Button, FlatList, StyleSheet } from 'react-native-web';
+import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
+
 import { startAuthentication } from '@simplewebauthn/browser';
 
 export default function BiometricUnlock() {
