@@ -11,7 +11,7 @@ async function getFaceEmbedding(imageFile) {
 }
 
 const handleLogin = async () => {
-  const resp = await fetch('REACT_APP_API_URI/login', {
+  const resp = await fetch('REACT_APP_API_URI/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -21,7 +21,7 @@ const handleLogin = async () => {
   window.location.href = '/dashboard';
 };
 const token = localStorage.getItem('token');
-const resp = await fetch('REACT_APP_API_URI/unlocked-images', {
+const resp = await fetch('REACT_APP_API_URI/images/unlocked-images', {
   headers: { Authorization: `Bearer ${token}` },
 });
 
@@ -56,7 +56,7 @@ async function findMatchingUser(newDescriptor, threshold = 0.6) {
 function RequestOTPForm() {
   const [phone, setPhone] = useState('');
   const handleRequest = async () => {
-    await fetch('REACT_APP_API_URI/request-otp', {
+    await fetch('REACT_APP_API_URI/auth/request-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone }),
