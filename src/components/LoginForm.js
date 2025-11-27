@@ -11,7 +11,7 @@ export default function LoginForm() {
 
   const handleLogin = async () => {
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/login`, {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
