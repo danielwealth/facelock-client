@@ -12,14 +12,14 @@ export default function ImageViewer() {
           credentials: 'include', // send cookies/session
         });
         const data = await resp.json();
-        setImages(data);
-      } catch (err) {
-        console.error('Failed to fetch images', err);
-      }
-    };
+         setImages(Array.isArray(data) ? data : data.images || []);
+    } catch (err) {
+      console.error('Failed to fetch images', err);
+    }
+  };
 
-    fetchImages();
-  }, []);
+  fetchImages();
+}, []);
 
   return (
     <View style={styles.container}>
