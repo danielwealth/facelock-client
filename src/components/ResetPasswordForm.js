@@ -13,7 +13,7 @@ export default function ResetPasswordForm({ token }) {
     }
 
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/reset-password/${token}`, {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/reset-password/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword }),
