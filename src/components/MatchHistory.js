@@ -8,7 +8,7 @@ export default function MatchHistory() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const resp = await fetch(`${process.env.REACT_APP_API_URI}/match-history`, {
+        const resp = await fetch(`${process.env.REACT_APP_API_URI}/match/history`, {
           credentials: 'include',
         });
         const data = await resp.json();
