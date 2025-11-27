@@ -11,7 +11,7 @@ export default function BiometricUnlock() {
   const authenticate = async () => {
     try {
       // Use REACT_APP_ prefix for frontend env vars
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/generate-authentication-options`);
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/biometric/generate-authentication-options`);
       const options = await resp.json();
 
       const authResp = await startAuthentication(options);
