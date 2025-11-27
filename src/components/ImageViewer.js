@@ -26,7 +26,7 @@ export default function ImageViewer() {
       {images.map((imgPath, i) => (
         <Image
           key={i}
-          source={{ uri: `${process.env.REACT_APP_API_URI}/${imgPath}` }}
+          source={{ uri: `${process.env.REACT_APP_API_URI}${imgPath}` }}
           style={styles.image}
         />
       ))}
