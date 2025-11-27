@@ -16,7 +16,7 @@ export default function RegisterForm() {
     }
 
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/register`, {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/request-reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
