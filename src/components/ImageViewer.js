@@ -8,7 +8,7 @@ export default function ImageViewer() {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const resp = await fetch(`${process.env.REACT_APP_API_URI}/unlocked-images`, {
+        const resp = await fetch(`${process.env.REACT_APP_API_URI}/images/unlocked-images`, {
           credentials: 'include', // send cookies/session
         });
         const data = await resp.json();
