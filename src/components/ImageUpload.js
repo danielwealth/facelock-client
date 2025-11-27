@@ -17,7 +17,7 @@ export default function ImageUpload() {
     formData.append('passcode', passcode);
 
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/upload`, {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/image/upload`, {
         method: 'POST',
         body: formData,
       });
