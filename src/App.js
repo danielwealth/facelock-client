@@ -18,21 +18,27 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/upload" element={<ImageUpload />} />
-        <Route path="/viewer" element={<ImageViewer />} />
-        <Route path="/unlock" element={<BiometricUnlock.tsx />} />
-        <Route path="/settings" element={<BiometricSettings />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/logout" element={<LogoutButton />} />
-        <Route path="/history" element={<MatchHistory />} />
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/request-reset" element={<RequestResetForm />} />
-        <Route path="/reset-password" element={<ResetPasswordForm />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-      </Routes>
+  {/* Admin */}
+  <Route path="/admin/dashboard" element={<Dashboard />} />
+  <Route path="/admin/unlock" element={<BiometricUnlock />} />
+  <Route path="/admin/settings" element={<BiometricSettings />} />
+  <Route path="/admin/login" element={<LoginForm />} />
+  <Route path="/admin/reset-password" element={<ResetPasswordForm />} />
+
+  {/* User */}
+  <Route path="/signup" element={<SignUp />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/reset-password" element={<ResetPassword />} />
+  <Route path="/upload" element={<ImageUpload />} />
+  <Route path="/viewer" element={<ImageViewer />} />
+  <Route path="/history" element={<MatchHistory />} />
+  <Route path="/register" element={<RegisterForm />} />
+  <Route path="/request-reset" element={<RequestResetForm />} />
+
+  {/* Shared */}
+  <Route path="/logout" element={<LogoutButton />} />
+</Routes>
+
     </Router>
   );
 }
