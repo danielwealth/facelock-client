@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './components/admin/Dashboard';
 import ImageUpload from './components/user/ImageUpload';
 import ImageViewer from './components/user/ImageViewer';
-import BiometricUnlock from './components/amdin/BiometricUnlock.tsx';
+import BiometricUnlock from './components/admin/BiometricUnlock.tsx';
 import BiometricSettings from './components/admin/BiometricSettings';
 import LoginForm from './components/LoginForm';
 import LogoutButton from './components/LogoutButton';
