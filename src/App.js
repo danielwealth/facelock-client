@@ -1,18 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Dashboard from './components/Dashboard';
-import ImageUpload from './components/ImageUpload';
-import ImageViewer from './components/ImageViewer';
-import BiometricUnlock from './components/BiometricUnlock.tsx';
-import BiometricSettings from './components/BiometricSettings';
+import Dashboard from './components/admin/Dashboard';
+import ImageUpload from './components/user/ImageUpload';
+import ImageViewer from './components/user/ImageViewer';
+import BiometricUnlock from './components/amdin/BiometricUnlock.tsx';
+import BiometricSettings from './components/admin/BiometricSettings';
 import LoginForm from './components/LoginForm';
 import LogoutButton from './components/LogoutButton';
-import MatchHistory from './components/MatchHistory';
-import RegisterForm from './components/RegisterForm';
-import RequestResetForm from './components/RequestResetForm';
-import ResetPasswordForm from './components/ResetPasswordForm';
-import SignUp from './components/SignUp';
-import Login from './components/Login';
-import ResetPassword from './components/ResetPassword';
+import MatchHistory from './components/user/MatchHistory';
+import RegisterForm from './components/user/RegisterForm';
+import RequestResetForm from './components/user/RequestResetForm';
+import ResetPasswordForm from './components/user/ResetPasswordForm';
+import SignUp from './components/user/SignUp';
+import Login from './components/user/Login';
+import ResetPassword from './components/user/ResetPassword';
 
 function App() {
   return (
