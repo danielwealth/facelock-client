@@ -1,34 +1,34 @@
-// client/src/components/Dashboard.js
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native-web';
-import ImageViewer from './ImageViewer';
-import MatchHistory from './MatchHistory';
-import BiometricSettings from './BiometricSettings';
-import LogoutButton from './LogoutButton';
-import ImageUpload from './ImageUpload';  // 👈 add this
+import React, { useState } from 'react';
+import AdminLogin from './components/admin/Login';
+import Dashboard from './components/admin/Dashboard';
+import UserSignUp from './components/user/SignUp';
+import UserLogin from './components/user/Login';
+import ResetPassword from './components/user/ResetPassword';
 
-export default function Dashboard() {
+export default function App() {
+  const [view, setView] = useState('home');
+
+  const renderView = () => {
+    switch (view) {
+      case 'admin-login': return <AdminLogin />;
+      case 'admin-dashboard': return <Dashboard />;
+      case 'signup': return <UserSignUp />;
+      case 'login': return <UserLogin />;
+      case 'reset': return <ResetPassword />;
+      default: return <h2>Welcome! Choose a portal above.</h2>;
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        Welcome to FaceLock Vault
-      </Text>
-      <BiometricSettings />
-      <ImageUpload />       {/* 👈 now users can register images */}
-      <ImageViewer />
-      <MatchHistory />
-      <LogoutButton />
-    </View>
+    <div style={{ padding: 20 }}>
+      <h1>Portal Dashboard</h1>
+      <nav style={{ marginBottom: 20 }}>
+        <button onClick={() => setView('admin-login')}>Admin Login</button>
+        <button onClick={() => setView('signup')}>User Sign Up</button>
+        <button onClick={() => setView('login')}>User Login</button>
+        <button onClick={() => setView('reset')}>Reset Password</button>
+      </nav>
+      {renderView()}
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-});
