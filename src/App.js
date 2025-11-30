@@ -4,7 +4,7 @@ import ImageUpload from './components/user/ImageUpload';
 import ImageViewer from './components/user/ImageViewer';
 import BiometricUnlock from './components/admin/BiometricUnlock.tsx';
 import BiometricSettings from './components/admin/BiometricSettings';
-import LoginForm from './components/LoginForm';
+import LoginForm from './components/admin/LoginForm';
 import LogoutButton from './components/LogoutButton';
 import MatchHistory from './components/user/MatchHistory';
 import RegisterForm from './components/user/RegisterForm';
