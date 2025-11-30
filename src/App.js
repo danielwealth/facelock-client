@@ -1,46 +1,51 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState } from 'react';
+import AdminLogin from './components/admin/LoginForm';
 import Dashboard from './components/admin/Dashboard';
-import ImageUpload from './components/user/ImageUpload';
-import ImageViewer from './components/user/ImageViewer';
-import BiometricUnlock from './components/admin/BiometricUnlock.tsx';
-import BiometricSettings from './components/admin/BiometricSettings';
-import LoginForm from './components/admin/LoginForm';
-import LogoutButton from './components/LogoutButton';
-import MatchHistory from './components/user/MatchHistory';
-import RegisterForm from './components/user/RegisterForm';
-import RequestResetForm from './components/user/RequestResetForm';
-import ResetPasswordForm from './components/user/ResetPasswordForm';
-import SignUp from './components/user/SignUp';
-import Login from './components/user/Login';
+import UserSignUp from './components/user/SignUp';
+import UserLogin from './components/user/Login';
 import ResetPassword from './components/user/ResetPassword';
 
-function App() {
+export default function App() {
+  const [view, setView] = useState('home');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  const handleAdminLoginSuccess = () => {
+    setIsAdminAuthenticated(true);
+    setView('admin-dashboard');
+  };
+
+  const renderView = () => {
+    switch (view) {
+      case 'admin-login':
+        return <AdminLogin onLoginSuccess={handleAdminLoginSuccess} />;
+      case 'admin-dashboard':
+        return isAdminAuthenticated ? (
+          <Dashboard />
+        ) : (
+          <h2>Please log in as admin first</h2>
+        );
+      case 'signup':
+        return <UserSignUp />;
+      case 'login':
+        return <UserLogin />;
+      case 'reset':
+        return <ResetPassword />;
+      default:
+        return <h2>Welcome! Choose a portal above.</h2>;
+    }
+  };
+
   return (
-    <Router>
-      <Routes>
-  {/* Admin */}
-  <Route path="/admin/dashboard" element={<Dashboard />} />
-  <Route path="/admin/unlock" element={<BiometricUnlock />} />
-  <Route path="/admin/settings" element={<BiometricSettings />} />
-  <Route path="/admin/login" element={<LoginForm />} />
-  <Route path="/admin/reset-password" element={<ResetPasswordForm />} />
-
-  {/* User */}
-  <Route path="/signup" element={<SignUp />} />
-  <Route path="/login" element={<Login />} />
-  <Route path="/reset-password" element={<ResetPassword />} />
-  <Route path="/upload" element={<ImageUpload />} />
-  <Route path="/viewer" element={<ImageViewer />} />
-  <Route path="/history" element={<MatchHistory />} />
-  <Route path="/register" element={<RegisterForm />} />
-  <Route path="/request-reset" element={<RequestResetForm />} />
-
-  {/* Shared */}
-  <Route path="/logout" element={<LogoutButton />} />
-</Routes>
-
-    </Router>
+    <div style={{ padding: 20 }}>
+      <h1>Portal Dashboard</h1>
+      <nav style={{ marginBottom: 20 }}>
+        <button onClick={() => setView('admin-login')}>Admin Login</button>
+        <button onClick={() => setView('admin-dashboard')}>Admin Dashboard</button>
+        <button onClick={() => setView('signup')}>User Sign Up</button>
+        <button onClick={() => setView('login')}>User Login</button>
+        <button onClick={() => setView('reset')}>Reset Password</button>
+      </nav>
+      {renderView()}
+    </div>
   );
 }
-
-export default App;
