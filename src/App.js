@@ -10,6 +10,9 @@ import MatchHistory from './components/MatchHistory';
 import RegisterForm from './components/RegisterForm';
 import RequestResetForm from './components/RequestResetForm';
 import ResetPasswordForm from './components/ResetPasswordForm';
+import SignUp from './components/SignUp';
+import Login from './components/Login';
+import ResetPassword from './components/ResetPassword';
 
 function App() {
   return (
@@ -26,6 +29,9 @@ function App() {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/request-reset" element={<RequestResetForm />} />
         <Route path="/reset-password" element={<ResetPasswordForm />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </Router>
   );
