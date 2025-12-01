@@ -37,7 +37,7 @@ export default function App() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Portal Dashboard</h1>
+      <h1>Welcome to Ohidans FacelockApp Portal Dashboard</h1>
       <nav style={{ marginBottom: 20 }}>
         <button onClick={() => setView('admin-login')}>Admin Login</button>
         <button onClick={() => setView('admin-dashboard')}>Admin Dashboard</button>
