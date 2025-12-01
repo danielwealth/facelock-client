@@ -9,10 +9,16 @@ import ResetPassword from './components/user/ResetPassword';
 export default function App() {
   const [view, setView] = useState('home');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
 
   const handleAdminLoginSuccess = () => {
     setIsAdminAuthenticated(true);
     setView('admin-dashboard');
+  };
+
+  const handleUserLoginSuccess = () => {
+    setIsUserAuthenticated(true);
+    setView('user-dashboard');
   };
 
   const renderView = () => {
@@ -28,7 +34,13 @@ export default function App() {
       case 'signup':
         return <UserSignUp />;
       case 'login':
-        return <UserLogin />;
+        return <UserLogin onLoginSuccess={handleUserLoginSuccess} />;
+      case 'user-dashboard':
+        return isUserAuthenticated ? (
+          <UserDashboard />
+        ) : (
+          <h2>Please log in as user first</h2>
+        );
       case 'reset':
         return <ResetPassword />;
       default:
@@ -44,6 +56,7 @@ export default function App() {
         <button onClick={() => setView('admin-dashboard')}>Admin Dashboard</button>
         <button onClick={() => setView('signup')}>User Sign Up</button>
         <button onClick={() => setView('login')}>User Login</button>
+        <button onClick={() => setView('user-dashboard')}>User Dashboard</button>
         <button onClick={() => setView('reset')}>Reset Password</button>
       </nav>
       {renderView()}
