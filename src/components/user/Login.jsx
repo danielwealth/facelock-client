@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 
 export default function UserLogin({ onLoginSuccess }) {
@@ -10,14 +11,14 @@ export default function UserLogin({ onLoginSuccess }) {
       const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        credentials: 'include', // keep session cookie
         body: JSON.stringify({ email, password }),
       });
 
       if (resp.ok) {
         const data = await resp.json();
         setStatus('Logged in!');
-        if (onLoginSuccess) onLoginSuccess(); // ✅ notify App.js
+        if (onLoginSuccess) onLoginSuccess(); // ✅ notify App.js to switch to user-dashboard
       } else {
         const data = await resp.json().catch(() => ({}));
         setStatus(data.error || 'Login failed');
@@ -33,16 +34,16 @@ export default function UserLogin({ onLoginSuccess }) {
       <h2>User Login</h2>
       <input
         type="email"
+        placeholder="Email"
         value={email}
         onChange={e => setEmail(e.target.value)}
-        placeholder="Email"
         style={{ display: 'block', marginBottom: 12, padding: 8 }}
       />
       <input
         type="password"
+        placeholder="Password"
         value={password}
         onChange={e => setPassword(e.target.value)}
-        placeholder="Password"
         style={{ display: 'block', marginBottom: 12, padding: 8 }}
       />
       <button onClick={handleLogin}>Login</button>
