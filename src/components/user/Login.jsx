@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
 
@@ -10,7 +11,7 @@ export default function Login() {
       const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }), // ✅ send email, not username
         credentials: 'include', // 🔑 ensures session cookie is stored
       });
       const data = await resp.json();
@@ -23,8 +24,18 @@ export default function Login() {
   return (
     <div>
       <h2>Login</h2>
-      <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+      />
       <button onClick={handleLogin}>Login</button>
       <p>{status}</p>
     </div>
