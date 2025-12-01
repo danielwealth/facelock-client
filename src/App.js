@@ -10,6 +10,7 @@ export default function App() {
   const [view, setView] = useState('home');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
+  
 
   const handleAdminLoginSuccess = () => {
     setIsAdminAuthenticated(true);
@@ -18,9 +19,10 @@ export default function App() {
 
   const handleUserLoginSuccess = () => {
     setIsUserAuthenticated(true);
+    case 'login':
+  return <UserLogin onLoginSuccess={handleUserLoginSuccess} />;
     setView('user-dashboard');
   };
-
   const renderView = () => {
     switch (view) {
       case 'admin-login':
