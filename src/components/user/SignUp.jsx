@@ -1,9 +1,9 @@
+
 import React, { useState } from 'react';
 
 export default function SignUp() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [status, setStatus] = useState('');
 
   const handleSignUp = async () => {
@@ -11,7 +11,7 @@ export default function SignUp() {
       const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, phoneNumber }),
+        body: JSON.stringify({ email, password }), // match User.js schema
       });
       const data = await resp.json();
       setStatus(data.message || 'Signup failed');
@@ -23,9 +23,18 @@ export default function SignUp() {
   return (
     <div>
       <h2>Sign Up</h2>
-      <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
-      <input placeholder="Phone Number" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+      />
       <button onClick={handleSignUp}>Register</button>
       <p>{status}</p>
     </div>
