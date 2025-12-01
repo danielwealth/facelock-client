@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AdminLogin from './components/admin/LoginForm';
 import Dashboard from './components/admin/Dashboard';
+import UserDashboard from './components/user/UserDashboard';
 import UserSignUp from './components/user/SignUp';
 import UserLogin from './components/user/Login';
 import ResetPassword from './components/user/ResetPassword';
