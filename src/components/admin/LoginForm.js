@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
-import { useNavigate } from 'react-router-dom';
 
-export default function LoginForm() {
+export default function AdminLogin({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // 🔑 session cookie
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
@@ -21,7 +19,7 @@ export default function LoginForm() {
 
       if (resp.ok) {
         setMessage('Logged in!');
-        navigate('/admin/dashboard'); // ✅ redirect to Admin Dashboard
+        if (onLoginSuccess) onLoginSuccess(); // ✅ tell App.js to switch view
       } else {
         setMessage(data.error || 'Login failed');
       }
@@ -37,7 +35,7 @@ export default function LoginForm() {
       <TextInput
         placeholder="Email"
         value={email}
-        onChangeText={setEmail} // ✅ React Native Web uses onChangeText
+        onChangeText={setEmail}
         style={styles.input}
       />
       <TextInput
