@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+
 export default function UserLogin({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,26 +13,40 @@ export default function UserLogin({ onLoginSuccess }) {
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
-      const data = await resp.json();
 
       if (resp.ok) {
+        const data = await resp.json();
         setStatus('Logged in!');
-        if (onLoginSuccess) onLoginSuccess(); // ✅ tell App.js that login succeeded
+        if (onLoginSuccess) onLoginSuccess(); // ✅ notify App.js
       } else {
+        const data = await resp.json().catch(() => ({}));
         setStatus(data.error || 'Login failed');
       }
     } catch (err) {
+      console.error(err);
       setStatus('Error logging in');
     }
   };
 
   return (
-    <div>
+    <div style={{ padding: 16 }}>
       <h2>User Login</h2>
-      <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" />
+      <input
+        type="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        placeholder="Email"
+        style={{ display: 'block', marginBottom: 12, padding: 8 }}
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        placeholder="Password"
+        style={{ display: 'block', marginBottom: 12, padding: 8 }}
+      />
       <button onClick={handleLogin}>Login</button>
-      <p>{status}</p>
+      {status && <p style={{ marginTop: 12 }}>{status}</p>}
     </div>
   );
 }
