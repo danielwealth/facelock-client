@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import AdminLogin from './components/admin/LoginForm';
 import Dashboard from './components/admin/Dashboard';
@@ -10,7 +11,6 @@ export default function App() {
   const [view, setView] = useState('home');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
-  
 
   const handleAdminLoginSuccess = () => {
     setIsAdminAuthenticated(true);
@@ -19,10 +19,9 @@ export default function App() {
 
   const handleUserLoginSuccess = () => {
     setIsUserAuthenticated(true);
-    case 'login':
-  return <UserLogin onLoginSuccess={handleUserLoginSuccess} />;
-    setView('user-dashboard');
+    setView('user-dashboard'); // ✅ switch to user dashboard after login
   };
+
   const renderView = () => {
     switch (view) {
       case 'admin-login':
