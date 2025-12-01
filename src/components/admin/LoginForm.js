@@ -1,4 +1,3 @@
-// client/src/components/LoginForm.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
@@ -14,15 +13,17 @@ export default function LoginForm() {
       const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        credentials: 'include', // 🔑 session cookie
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await resp.json();
+
       if (resp.ok) {
         setMessage('Logged in!');
-        navigate('/dashboard'); // ✅ use React Router navigation
+        navigate('/admin/dashboard'); // ✅ redirect to Admin Dashboard
       } else {
-        setMessage('Login failed');
+        setMessage(data.error || 'Login failed');
       }
     } catch (err) {
       console.error(err);
@@ -32,10 +33,11 @@ export default function LoginForm() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.heading}>Admin Login</Text>
       <TextInput
         placeholder="Email"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={setEmail} // ✅ React Native Web uses onChangeText
         style={styles.input}
       />
       <TextInput
@@ -55,6 +57,10 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
   },
+  heading: {
+    fontSize: 20,
+    marginBottom: 12,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -63,5 +69,6 @@ const styles = StyleSheet.create({
   },
   message: {
     marginTop: 12,
+    color: 'red',
   },
 });
