@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native-web';
 import AdminLogin from './components/admin/LoginForm';
 import Dashboard from './components/admin/Dashboard';
 import UserDashboard from './components/user/UserDashboard';
@@ -19,7 +19,7 @@ export default function App() {
 
   const handleUserLoginSuccess = () => {
     setIsUserAuthenticated(true);
-    setView('user-dashboard'); // ✅ switch to user dashboard after login
+    setView('user-dashboard');
   };
 
   const renderView = () => {
@@ -30,7 +30,7 @@ export default function App() {
         return isAdminAuthenticated ? (
           <Dashboard />
         ) : (
-          <h2>Please log in as admin first</h2>
+          <Text>Please log in as admin first</Text>
         );
       case 'signup':
         return <UserSignUp />;
@@ -40,27 +40,40 @@ export default function App() {
         return isUserAuthenticated ? (
           <UserDashboard />
         ) : (
-          <h2>Please log in as user first</h2>
+          <Text>Please log in as user first</Text>
         );
       case 'reset':
         return <ResetPassword />;
       default:
-        return <h2>Welcome! Choose a portal above.</h2>;
+        return <Text>Welcome! Choose a portal above.</Text>;
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Welcome to Ohidans FacelockApp Portal Dashboard</h1>
-      <nav style={{ marginBottom: 20 }}>
-        <button onClick={() => setView('admin-login')}>Admin Login</button>
-        <button onClick={() => setView('admin-dashboard')}>Admin Dashboard</button>
-        <button onClick={() => setView('signup')}>User Sign Up</button>
-        <button onClick={() => setView('login')}>User Login</button>
-        <button onClick={() => setView('user-dashboard')}>User Dashboard</button>
-        <button onClick={() => setView('reset')}>Reset Password</button>
-      </nav>
+    <View style={styles.container}>
+      <Text style={styles.heading}>Welcome to Ohidans FacelockApp Portal Dashboard</Text>
+      <View style={styles.nav}>
+        <Button title="Admin Login" onPress={() => setView('admin-login')} />
+        <Button title="Admin Dashboard" onPress={() => setView('admin-dashboard')} />
+        <Button title="User Sign Up" onPress={() => setView('signup')} />
+        <Button title="User Login" onPress={() => setView('login')} />
+        <Button title="User Dashboard" onPress={() => setView('user-dashboard')} />
+        <Button title="Reset Password" onPress={() => setView('reset')} />
+      </View>
       {renderView()}
-    </div>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+  heading: {
+    fontSize: 24,
+    marginBottom: 20,
+  },
+  nav: {
+    marginBottom: 20,
+  },
+});
