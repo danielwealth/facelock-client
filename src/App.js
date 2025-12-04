@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
+
+// Admin components
 import AdminLogin from './components/admin/LoginForm';
 import Dashboard from './components/admin/Dashboard';
+
+// User components
 import UserDashboard from './components/user/UserDashboard';
-import UserSignUp from './components/user/SignUp';
 import UserLogin from './components/user/Login';
+import RegisterForm from './components/user/RegisterForm';
+import ImageUpload from './components/user/ImageUpload';
+import ImageViewer from './components/user/ImageViewer';
+import MatchHistory from './components/user/MatchHistory';
 import ResetPassword from './components/user/ResetPassword';
 
 export default function App() {
@@ -27,21 +34,19 @@ export default function App() {
       case 'admin-login':
         return <AdminLogin onLoginSuccess={handleAdminLoginSuccess} />;
       case 'admin-dashboard':
-        return isAdminAuthenticated ? (
-          <Dashboard />
-        ) : (
-          <Text>Please log in as admin first</Text>
-        );
-      case 'signup':
-        return <UserSignUp />;
+        return isAdminAuthenticated ? <Dashboard /> : <Text>Please log in as admin first</Text>;
       case 'login':
         return <UserLogin onLoginSuccess={handleUserLoginSuccess} />;
+      case 'register':
+        return <RegisterForm />;
       case 'user-dashboard':
-        return isUserAuthenticated ? (
-          <UserDashboard />
-        ) : (
-          <Text>Please log in as user first</Text>
-        );
+        return isUserAuthenticated ? <UserDashboard setView={setView} /> : <Text>Please log in as user first</Text>;
+      case 'upload':
+        return <ImageUpload />;
+      case 'viewer':
+        return <ImageViewer />;
+      case 'history':
+        return <MatchHistory />;
       case 'reset':
         return <ResetPassword />;
       default:
@@ -55,9 +60,12 @@ export default function App() {
       <View style={styles.nav}>
         <Button title="Admin Login" onPress={() => setView('admin-login')} />
         <Button title="Admin Dashboard" onPress={() => setView('admin-dashboard')} />
-        <Button title="User Sign Up" onPress={() => setView('signup')} />
         <Button title="User Login" onPress={() => setView('login')} />
+        <Button title="Register Form" onPress={() => setView('register')} />
         <Button title="User Dashboard" onPress={() => setView('user-dashboard')} />
+        <Button title="Upload Image" onPress={() => setView('upload')} />
+        <Button title="Image Viewer" onPress={() => setView('viewer')} />
+        <Button title="Match History" onPress={() => setView('history')} />
         <Button title="Reset Password" onPress={() => setView('reset')} />
       </View>
       {renderView()}
@@ -75,5 +83,6 @@ const styles = StyleSheet.create({
   },
   nav: {
     marginBottom: 20,
+    gap: 8,
   },
 });
