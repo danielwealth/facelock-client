@@ -1,35 +1,43 @@
-// client/src/components/ImageViewer.js
 import React, { useEffect, useState } from 'react';
-import { View, Image, StyleSheet } from 'react-native-web';
+import { View, Image, Text, StyleSheet } from 'react-native-web';
 
 export default function ImageViewer() {
   const [images, setImages] = useState([]);
+  const [status, setStatus] = useState('Loading images...');
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
         const resp = await fetch(`${process.env.REACT_APP_API_URI}/images/unlocked-images`, {
-          credentials: 'include', // send cookies/session
+          credentials: 'include', // 🔑 send cookies/session
         });
         const data = await resp.json();
-         setImages(Array.isArray(data) ? data : data.images || []);
-    } catch (err) {
-      console.error('Failed to fetch images', err);
-    }
-  };
 
-  fetchImages();
-}, []);
+        const imgArray = Array.isArray(data) ? data : data.images || [];
+        setImages(imgArray);
+        setStatus(imgArray.length ? '' : 'No images found');
+      } catch (err) {
+        console.error('Failed to fetch images', err);
+        setStatus('Error fetching images');
+      }
+    };
+
+    fetchImages();
+  }, []);
 
   return (
     <View style={styles.container}>
-      {images.map((imgPath, i) => (
-        <Image
-          key={i}
-          source={{ uri: `${process.env.REACT_APP_API_URI}${imgPath}` }}
-          style={styles.image}
-        />
-      ))}
+      {status ? (
+        <Text style={styles.status}>{status}</Text>
+      ) : (
+        images.map((imgPath, i) => (
+          <Image
+            key={i}
+            source={{ uri: `${process.env.REACT_APP_API_URI}${imgPath}` }}
+            style={styles.image}
+          />
+        ))
+      )}
     </View>
   );
 }
@@ -49,5 +57,9 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 4,
+  },
+  status: {
+    fontSize: 16,
+    color: 'gray',
   },
 });
