@@ -1,38 +1,13 @@
-// client/src/components/ImageUpload.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button } from 'react-native-web';
+import { View, Text, Button, StyleSheet } from 'react-native-web';
 
 export default function ImageUpload() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [image, setImage] = useState(null);
   const [status, setStatus] = useState('');
 
-  // Step 1: Login to establish session
-  const handleLogin = async () => {
-    try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include', // 🔑 ensures cookie is stored
-      });
-      const data = await resp.json();
-      if (resp.ok) {
-        setStatus('Logged in successfully');
-      } else {
-        setStatus(data.error || 'Login failed');
-      }
-    } catch (err) {
-      console.error('Login failed:', err);
-      setStatus('Login error');
-    }
-  };
-
-  // Step 2: Upload image using session
   const handleUpload = async () => {
     if (!image) {
-      console.warn('No image selected');
+      setStatus('Please select an image first.');
       return;
     }
 
@@ -40,15 +15,16 @@ export default function ImageUpload() {
     formData.append('image', image);
 
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/images/upload`, {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/user/lock-image`, {
         method: 'POST',
         body: formData,
-        credentials: 'include', // 🔑 sends cookie back
+        credentials: 'include', // 🔑 ensures session cookie is sent
       });
+
       const data = await resp.json();
       if (resp.ok) {
         setStatus('Image uploaded and locked successfully');
-        console.log('Uploaded:', data);
+        console.log('Locked image:', data);
       } else {
         setStatus(data.error || 'Upload failed');
       }
@@ -59,35 +35,35 @@ export default function ImageUpload() {
   };
 
   return (
-    <View style={{ padding: 16 }}>
-      <Text style={{ marginBottom: 8 }}>Login first:</Text>
-      <TextInput
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-        style={{ borderWidth: 1, borderColor: '#ccc', padding: 8, marginBottom: 8 }}
+    <View style={styles.container}>
+      <Text style={styles.heading}>Upload & Lock Image</Text>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setImage(e.target.files[0])}
+        style={styles.fileInput}
       />
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        style={{ borderWidth: 1, borderColor: '#ccc', padding: 8, marginBottom: 12 }}
-      />
-      <Button title="Login" onPress={handleLogin} />
-
-      <Text style={{ marginTop: 16, marginBottom: 8 }}>Select an image:</Text>
-      <View style={{ marginBottom: 12 }}>
-        <input
-          type="file"
-          onChange={e => setImage(e.target.files[0])}
-          style={{ marginBottom: 12 }}
-        />
-      </View>
-
       <Button title="Lock Image" onPress={handleUpload} />
-
-      {status && <Text style={{ marginTop: 16 }}>{status}</Text>}
+      {status && <Text style={styles.status}>{status}</Text>}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  fileInput: {
+    marginBottom: 12,
+  },
+  status: {
+    marginTop: 12,
+    fontSize: 14,
+    color: 'blue',
+  },
+});
