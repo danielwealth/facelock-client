@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
-import { loadModels, getFaceDescriptor } from '../utils/faceUtils';
+import { loadModels, getFaceDescriptor } from '../../utils/faceUtils';
+
 
 export default function ImageUpload() {
   const [status, setStatus] = useState('');
