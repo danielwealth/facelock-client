@@ -1,30 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
+import { loadModels, getFaceDescriptor } from '../utils/faceUtils';
 
 export default function ImageUpload() {
-  const [image, setImage] = useState(null);
   const [status, setStatus] = useState('');
+  const [file, setFile] = useState(null);
+
+  // Load face-api models once when component mounts
+  useEffect(() => {
+    loadModels().catch(err => {
+      console.error('Failed to load models', err);
+      setStatus('Error loading face models');
+    });
+  }, []);
+
+  const handleFileChange = e => {
+    setFile(e.target.files[0]);
+  };
 
   const handleUpload = async () => {
-    if (!image) {
-      setStatus('Please select an image first.');
+    if (!file) {
+      setStatus('Please select an image first');
       return;
     }
 
-    const formData = new FormData();
-    formData.append('image', image);
-
     try {
+      // Extract descriptor from selected image
+      const descriptor = await getFaceDescriptor(file);
+      if (!descriptor) {
+        setStatus('No face detected in image');
+        return;
+      }
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('descriptor', JSON.stringify(descriptor));
+
+      // Send to backend
       const resp = await fetch(`${process.env.REACT_APP_API_URI}/user/lock-image`, {
         method: 'POST',
         body: formData,
-        credentials: 'include', // 🔑 ensures session cookie is sent
+        credentials: 'include',
       });
 
-      const data = await resp.json();
+      const contentType = resp.headers.get('content-type');
+      let data;
+      if (contentType && contentType.includes('application/json')) {
+        data = await resp.json();
+      } else {
+        data = await resp.text();
+      }
+
       if (resp.ok) {
-        setStatus('Image uploaded and locked successfully');
-        console.log('Locked image:', data);
+        setStatus(data.message || 'Image uploaded and locked successfully');
       } else {
         setStatus(data.error || 'Upload failed');
       }
@@ -36,34 +65,27 @@ export default function ImageUpload() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Upload & Lock Image</Text>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={e => setImage(e.target.files[0])}
-        style={styles.fileInput}
-      />
-      <Button title="Lock Image" onPress={handleUpload} />
-      {status && <Text style={styles.status}>{status}</Text>}
+      <Text style={styles.heading}>Upload and Lock Image</Text>
+      <input type="file" accept="image/*" onChange={handleFileChange} />
+      <Button title="Upload" onPress={handleUpload} />
+      {status ? <Text style={styles.status}>{status}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    marginTop: 24,
+    paddingHorizontal: 16,
   },
   heading: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  fileInput: {
+    fontSize: 18,
+    fontWeight: '600',
     marginBottom: 12,
   },
   status: {
     marginTop: 12,
-    fontSize: 14,
-    color: 'blue',
+    fontSize: 16,
+    color: 'gray',
   },
 });
