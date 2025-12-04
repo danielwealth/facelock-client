@@ -9,7 +9,7 @@ export default function ImageViewer() {
     const fetchImages = async () => {
       try {
         const resp = await fetch(`${process.env.REACT_APP_API_URI}/images/unlocked-images`, {
-          credentials: 'include', // 🔑 send cookies/session
+          credentials: 'include', // 🔑 session cookie proves user identity
         });
         const data = await resp.json();
 
