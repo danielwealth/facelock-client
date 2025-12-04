@@ -1,5 +1,7 @@
+// client/src/api.js
 import * as faceapi from 'face-api.js';
 import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native-web';
 
 // Load models once
 async function loadModels() {
@@ -8,6 +10,7 @@ async function loadModels() {
   await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
 }
 
+// Extract face descriptor
 export async function getFaceDescriptor(imageFile) {
   await loadModels();
   const img = await faceapi.bufferToImage(imageFile);
@@ -15,14 +18,16 @@ export async function getFaceDescriptor(imageFile) {
     .detectSingleFace(img)
     .withFaceLandmarks()
     .withFaceDescriptor();
-  return detection?.descriptor;
+  return detection?.descriptor; // 128-d vector
 }
 
+// Login handler
 export async function handleLogin(email, password) {
   const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
+    credentials: 'include',
   });
   const data = await resp.json();
   if (resp.ok) {
@@ -32,17 +37,23 @@ export async function handleLogin(email, password) {
   return data;
 }
 
+// Fetch unlocked images
 export async function fetchUnlockedImages() {
   const token = localStorage.getItem('token');
   const resp = await fetch(`${process.env.REACT_APP_API_URI}/images/unlocked-images`, {
     headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
   });
   return resp.json();
 }
 
+// Match user descriptor against stored ones
 export async function findMatchingUser(newDescriptor, threshold = 0.6) {
-  // Replace with API call to backend that returns all descriptors
-  const allDescriptors = await fetch(`${process.env.REACT_APP_API_URI}/users/descriptors`).then(r => r.json());
+  const resp = await fetch(`${process.env.REACT_APP_API_URI}/users/descriptors`, {
+    credentials: 'include',
+  });
+  const allDescriptors = await resp.json();
+
   for (const record of allDescriptors) {
     const distance = Math.sqrt(
       newDescriptor.reduce((sum, val, i) => sum + Math.pow(val - record.descriptor[i], 2), 0)
@@ -54,20 +65,42 @@ export async function findMatchingUser(newDescriptor, threshold = 0.6) {
   return null;
 }
 
+// OTP Request Form using React Native Web primitives
 export function RequestOTPForm() {
   const [phone, setPhone] = useState('');
+
   const handleRequest = async () => {
     await fetch(`${process.env.REACT_APP_API_URI}/auth/request-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone }),
+      credentials: 'include',
     });
     alert('OTP sent to your phone');
   };
+
   return (
-    <div>
-      <input type="tel" onChange={e => setPhone(e.target.value)} />
-      <button onClick={handleRequest}>Request OTP</button>
-    </div>
+    <View style={styles.container}>
+      <TextInput
+        placeholder="Enter phone number"
+        keyboardType="phone-pad"
+        value={phone}
+        onChangeText={setPhone}
+        style={styles.input}
+      />
+      <Button title="Request OTP" onPress={handleRequest} />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 12,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    marginBottom: 12,
+  },
+});
