@@ -9,11 +9,12 @@ export default function ImageUpload() {
 
   // Load face-api models once when component mounts
   useEffect(() => {
-    import { loadModels } from '../utils/faceUtils';
-  loadModels()
-    .then(() => console.log('Models loaded'))
-    .catch(err => console.error('Error loading models', err));
-}, []);
+    useEffect(() => {
+    loadModels().catch(err => {
+      console.error('Failed to load models', err);
+      setStatus('Error loading face models');
+    });
+  }, []);
 
 
   const handleFileChange = e => {
