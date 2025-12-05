@@ -1,6 +1,6 @@
 // client/src/components/RegisterForm.js
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
+import { View, TextInput, Text, StyleSheet, Pressable } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
 
 export default function RegisterForm() {
@@ -20,12 +20,14 @@ export default function RegisterForm() {
 
       if (resp.ok) {
         setMessage('Registered!');
-        navigate('/login'); // ✅ redirect to login after success
+        navigate('/login'); // redirect after success
       } else {
+        const errText = await resp.text();
+        console.error("Registration failed:", errText);
         setMessage('Registration failed');
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error registering:", err);
       setMessage('Error registering');
     }
   };
@@ -45,7 +47,11 @@ export default function RegisterForm() {
         onChangeText={setPassword}
         style={styles.input}
       />
-      <Button title="Register" onPress={handleRegister} />
+
+      <Pressable style={styles.button} onPress={handleRegister}>
+        <Text style={styles.buttonText}>Register</Text>
+      </Pressable>
+
       {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
   );
@@ -54,14 +60,28 @@ export default function RegisterForm() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    maxWidth: 400,
+    marginHorizontal: 'auto',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 8,
     marginBottom: 12,
+    borderRadius: 4,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    borderRadius: 4,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   message: {
     marginTop: 12,
+    textAlign: 'center',
   },
 });
