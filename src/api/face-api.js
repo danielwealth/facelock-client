@@ -13,13 +13,26 @@ async function loadModels() {
 // Extract face descriptor
 export async function getFaceDescriptor(imageFile) {
   await loadModels();
+
   const img = await faceapi.bufferToImage(imageFile);
+
+  // Ensure the image is fully loaded
+  await new Promise(resolve => {
+    img.onload = resolve;
+  });
+
   const detection = await faceapi
     .detectSingleFace(img)
     .withFaceLandmarks()
     .withFaceDescriptor();
-  return detection?.descriptor; // 128-d vector
+
+  if (!detection) {
+    throw new Error("No face detected in image");
+  }
+
+  return detection.descriptor; // 128-d vector
 }
+
 
 // Login handler
 export async function handleLogin(email, password) {
