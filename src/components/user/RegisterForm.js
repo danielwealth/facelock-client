@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, Pressable } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
-import RegisterForm from './RegisterForm';
 
 
 export default function RegisterForm() {
