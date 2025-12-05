@@ -1,14 +1,11 @@
-// client/src/components/RegisterForm.js
+// client/src/components/user/RegisterForm.js
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, Pressable } from 'react-native-web';
-import { useNavigate } from 'react-router-dom';
 
-
-export default function RegisterForm() {
+export default function RegisterForm({ setView }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
   const handleRegister = async () => {
     try {
@@ -21,7 +18,7 @@ export default function RegisterForm() {
 
       if (resp.ok) {
         setMessage('Registered!');
-        navigate('/login'); // redirect after success
+        setView('login'); // ✅ switch to login view after success
       } else {
         const errText = await resp.text();
         console.error("Registration failed:", errText);
@@ -61,8 +58,6 @@ export default function RegisterForm() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    maxWidth: 400,
-    marginHorizontal: 'auto',
   },
   input: {
     borderWidth: 1,
@@ -83,6 +78,5 @@ const styles = StyleSheet.create({
   },
   message: {
     marginTop: 12,
-    textAlign: 'center',
   },
 });
