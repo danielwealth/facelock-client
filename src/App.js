@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+// client/src/App.js
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
+import { loadModels } from './faceApiHelpers';
 
-// Admin components
+// Components
 import AdminLogin from './components/admin/LoginForm';
 import Dashboard from './components/admin/Dashboard';
-
-// User components
 import UserDashboard from './components/user/UserDashboard';
 import UserLogin from './components/user/Login';
 import RegisterForm from './components/user/RegisterForm';
@@ -18,6 +18,10 @@ export default function App() {
   const [view, setView] = useState('home');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
+
+  useEffect(() => {
+    loadModels(); // ✅ load models once globally
+  }, []);
 
   const handleAdminLoginSuccess = () => {
     setIsAdminAuthenticated(true);
@@ -38,12 +42,11 @@ export default function App() {
       case 'login':
         return <UserLogin onLoginSuccess={handleUserLoginSuccess} />;
       case 'register':
-        return <RegisterForm />;
+        return <RegisterForm setView={setView} />;
       case 'user-dashboard':
         return isUserAuthenticated ? <UserDashboard setView={setView} /> : <Text>Please log in as user first</Text>;
       case 'upload':
         return <ImageUpload setView={setView} />;
-
       case 'viewer':
         return <ImageViewer />;
       case 'history':
@@ -75,15 +78,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  heading: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  nav: {
-    marginBottom: 20,
-    gap: 8,
-  },
+  container: { padding: 20 },
+  heading: { fontSize: 24, marginBottom: 20 },
+  nav: { marginBottom: 20, gap: 8 },
 });
