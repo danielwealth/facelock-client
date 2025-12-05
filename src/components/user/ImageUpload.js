@@ -9,6 +9,7 @@ export default function ImageUpload({ setView }) {
   const [message, setMessage] = useState('');
   const [processing, setProcessing] = useState(false);
 
+  // Step 1: Select file
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
@@ -18,6 +19,7 @@ export default function ImageUpload({ setView }) {
     }
   };
 
+  // Step 2: Click Upload to run detection
   const handleUpload = async () => {
     if (!file) {
       setMessage('Please select a file first.');
@@ -33,10 +35,21 @@ export default function ImageUpload({ setView }) {
     setMessage('Image is processing, please wait...');
 
     try {
-      const descriptor = await getFaceDescriptor(file);
-      console.log('Face descriptor:', descriptor);
-      setMessage('✅ Image locked successfully!');
-      setView('user-dashboard');
+      // Timeout guard: stop if detection takes too long
+      const detection = await Promise.race([
+        getFaceDescriptor(file),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Detection timed out')), 10000)
+        ),
+      ]);
+
+      if (!detection) {
+        setMessage('❌ No face detected. Please upload a clear headshot.');
+      } else {
+        console.log('Face descriptor:', detection);
+        setMessage('✅ Image locked successfully!');
+        setView('user-dashboard'); // navigate to dashboard after success
+      }
     } catch (err) {
       console.error('Detection failed:', err);
       setMessage('❌ Error: ' + err.message);
@@ -69,6 +82,9 @@ export default function ImageUpload({ setView }) {
         {processing ? 'Processing...' : 'Upload'}
       </button>
 
+      {/* ✅ Spinner while processing */}
+      {processing && <div style={styles.spinner}></div>}
+
       {message && <Text style={styles.message}>{message}</Text>}
     </View>
   );
@@ -80,4 +96,13 @@ const styles = StyleSheet.create({
   message: { marginTop: 12 },
   previewContainer: { marginTop: 12 },
   preview: { width: 200, height: 'auto', border: '1px solid #ccc' },
+  spinner: {
+    marginTop: 12,
+    border: '4px solid #f3f3f3',
+    borderTop: '4px solid #007bff',
+    borderRadius: '50%',
+    width: 24,
+    height: 24,
+    animation: 'spin 1s linear infinite',
+  },
 });
