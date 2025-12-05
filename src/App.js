@@ -42,7 +42,8 @@ export default function App() {
       case 'user-dashboard':
         return isUserAuthenticated ? <UserDashboard setView={setView} /> : <Text>Please log in as user first</Text>;
       case 'upload':
-        return <ImageUpload />;
+        return <ImageUpload setView={setView} />;
+
       case 'viewer':
         return <ImageViewer />;
       case 'history':
