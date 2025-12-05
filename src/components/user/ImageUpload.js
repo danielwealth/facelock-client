@@ -5,12 +5,18 @@ import { getFaceDescriptor, areModelsReady } from '../../faceApiHelpers';
 
 export default function ImageUpload({ setView }) {
   const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState('');
+  const [processing, setProcessing] = useState(false);
 
   // Step 1: Select file
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
-    setMessage('File selected. Click Upload to continue.');
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile)); // ✅ show thumbnail
+      setMessage('File selected. Click Upload to continue.');
+    }
   };
 
   // Step 2: Click Upload to run detection
@@ -25,14 +31,19 @@ export default function ImageUpload({ setView }) {
       return;
     }
 
+    setProcessing(true);
+    setMessage('Image is processing, please wait...');
+
     try {
       const descriptor = await getFaceDescriptor(file);
       console.log('Face descriptor:', descriptor); // long vector in console
-      setMessage('✅ Face detected successfully!');
+      setMessage('✅ Image locked successfully!');
       setView('user-dashboard'); // navigate to dashboard after success
     } catch (err) {
       console.error('Detection failed:', err);
       setMessage('❌ Error: ' + err.message);
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -43,7 +54,17 @@ export default function ImageUpload({ setView }) {
         accept="image/jpeg,image/png"
         onChange={handleFileChange}
       />
-      <button onClick={handleUpload}>Upload</button>
+
+      {preview && (
+        <div style={styles.previewContainer}>
+          <img src={preview} alt="Selected preview" style={styles.preview} />
+        </div>
+      )}
+
+      <button onClick={handleUpload} disabled={processing}>
+        {processing ? 'Processing...' : 'Upload'}
+      </button>
+
       {message && <Text style={styles.message}>{message}</Text>}
     </View>
   );
@@ -52,4 +73,6 @@ export default function ImageUpload({ setView }) {
 const styles = StyleSheet.create({
   container: { padding: 16 },
   message: { marginTop: 12 },
+  previewContainer: { marginTop: 12 },
+  preview: { width: 200, height: 'auto', border: '1px solid #ccc' },
 });
