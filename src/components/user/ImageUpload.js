@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native-web';
 import * as faceapi from 'face-api.js';
 
-export default function ImageUpload() {
+export default function ImageUpload({ setView }) {
   const [modelsReady, setModelsReady] = useState(false);
 
   useEffect(() => {
@@ -11,20 +11,20 @@ export default function ImageUpload() {
       await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
       await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
       await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-
-      console.log("✅ Models loaded:");
-      console.log("ssdMobilenetv1:", faceapi.nets.ssdMobilenetv1.isLoaded);
-      console.log("faceLandmark68Net:", faceapi.nets.faceLandmark68Net.isLoaded);
-      console.log("faceRecognitionNet:", faceapi.nets.faceRecognitionNet.isLoaded);
-
       setModelsReady(true);
     }
     initModels();
   }, []);
 
   const handleUpload = async () => {
-    // your upload logic here
-    console.log("Upload clicked");
+    try {
+      console.log("Upload clicked");
+      // your upload logic here (e.g. getFaceDescriptor, send to server)
+      // After success:
+      setView('user-dashboard'); // ✅ switch to dashboard
+    } catch (err) {
+      console.error("Upload failed:", err);
+    }
   };
 
   return (
@@ -43,20 +43,13 @@ export default function ImageUpload() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
+  container: { padding: 16 },
   button: {
     backgroundColor: '#007bff',
     paddingVertical: 10,
     borderRadius: 4,
     alignItems: 'center',
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  disabled: {
-    backgroundColor: '#999',
-  },
+  buttonText: { color: '#fff', fontWeight: 'bold' },
+  disabled: { backgroundColor: '#999' },
 });
