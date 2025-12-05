@@ -9,17 +9,15 @@ export default function ImageUpload({ setView }) {
   const [message, setMessage] = useState('');
   const [processing, setProcessing] = useState(false);
 
-  // Step 1: Select file
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile)); // ✅ show thumbnail
+      setPreview(URL.createObjectURL(selectedFile));
       setMessage('File selected. Click Upload to continue.');
     }
   };
 
-  // Step 2: Click Upload to run detection
   const handleUpload = async () => {
     if (!file) {
       setMessage('Please select a file first.');
@@ -36,9 +34,9 @@ export default function ImageUpload({ setView }) {
 
     try {
       const descriptor = await getFaceDescriptor(file);
-      console.log('Face descriptor:', descriptor); // long vector in console
+      console.log('Face descriptor:', descriptor);
       setMessage('✅ Image locked successfully!');
-      setView('user-dashboard'); // navigate to dashboard after success
+      setView('user-dashboard');
     } catch (err) {
       console.error('Detection failed:', err);
       setMessage('❌ Error: ' + err.message);
@@ -49,6 +47,12 @@ export default function ImageUpload({ setView }) {
 
   return (
     <View style={styles.container}>
+      {/* ✅ Instructions for users */}
+      <Text style={styles.instructions}>
+        Please upload a clear headshot (passport-style photo). 
+        Make sure your face is centered, well-lit, and without sunglasses or masks.
+      </Text>
+
       <input
         type="file"
         accept="image/jpeg,image/png"
@@ -72,6 +76,7 @@ export default function ImageUpload({ setView }) {
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
+  instructions: { marginBottom: 12, fontWeight: 'bold' },
   message: { marginTop: 12 },
   previewContainer: { marginTop: 12 },
   preview: { width: 200, height: 'auto', border: '1px solid #ccc' },
