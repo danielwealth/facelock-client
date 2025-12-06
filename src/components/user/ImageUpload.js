@@ -9,7 +9,6 @@ export default function ImageUpload({ setView }) {
   const [message, setMessage] = useState('');
   const [processing, setProcessing] = useState(false);
 
-  // Step 1: Select file
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
@@ -19,7 +18,6 @@ export default function ImageUpload({ setView }) {
     }
   };
 
-  // Step 2: Click Upload to run detection
   const handleUpload = async () => {
     if (!file) {
       setMessage('Please select a file first.');
@@ -35,11 +33,11 @@ export default function ImageUpload({ setView }) {
     setMessage('Image is processing, please wait...');
 
     try {
-      // Timeout guard: stop if detection takes too long
+      // ✅ 30-second timeout guard
       const detection = await Promise.race([
         getFaceDescriptor(file),
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Detection timed out')), 10000)
+          setTimeout(() => reject(new Error('Detection timed out')), 30000)
         ),
       ]);
 
@@ -48,7 +46,7 @@ export default function ImageUpload({ setView }) {
       } else {
         console.log('Face descriptor:', detection);
         setMessage('✅ Image locked successfully!');
-        setView('user-dashboard'); // navigate to dashboard after success
+        setView('user-dashboard');
       }
     } catch (err) {
       console.error('Detection failed:', err);
@@ -60,7 +58,7 @@ export default function ImageUpload({ setView }) {
 
   return (
     <View style={styles.container}>
-      {/* ✅ Instructions for users */}
+      {/* Instructions */}
       <Text style={styles.instructions}>
         Please upload a clear headshot (passport-style photo). 
         Make sure your face is centered, well-lit, and without sunglasses or masks.
@@ -82,7 +80,7 @@ export default function ImageUpload({ setView }) {
         {processing ? 'Processing...' : 'Upload'}
       </button>
 
-      {/* ✅ Spinner while processing */}
+      {/* Spinner while processing */}
       {processing && <div style={styles.spinner}></div>}
 
       {message && <Text style={styles.message}>{message}</Text>}
