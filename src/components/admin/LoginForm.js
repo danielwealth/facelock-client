@@ -33,13 +33,13 @@ export default function AdminLogin({ onLoginSuccess }) {
     <View style={styles.container}>
       <Text style={styles.heading}>Admin Login</Text>
       <TextInput
-        placeholder="Email"
+        placeholder="Admin Email"
         value={email}
         onChangeText={setEmail}
         style={styles.input}
       />
       <TextInput
-        placeholder="Password"
+        placeholder="Admin Password"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
