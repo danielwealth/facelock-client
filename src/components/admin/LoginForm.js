@@ -18,8 +18,8 @@ export default function AdminLogin({ onLoginSuccess }) {
       const data = await resp.json();
 
       if (resp.ok) {
-        setMessage('Logged in!');
-        if (onLoginSuccess) onLoginSuccess(); // ✅ tell App.js to switch view
+        setMessage('✅ Admin login successful');
+        if (onLoginSuccess) onLoginSuccess(); // Switch to admin dashboard
       } else {
         setMessage(data.error || 'Login failed');
       }
@@ -52,21 +52,8 @@ export default function AdminLogin({ onLoginSuccess }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
-  heading: {
-    fontSize: 20,
-    marginBottom: 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    marginBottom: 12,
-  },
-  message: {
-    marginTop: 12,
-    color: 'red',
-  },
+  container: { padding: 16 },
+  heading: { fontSize: 20, marginBottom: 12 },
+  input: { borderWidth: 1, borderColor: '#ccc', padding: 8, marginBottom: 12 },
+  message: { marginTop: 12, color: 'red' },
 });
