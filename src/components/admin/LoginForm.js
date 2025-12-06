@@ -8,7 +8,7 @@ export default function AdminLogin({ onLoginSuccess }) {
 
   const handleLogin = async () => {
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/admin/auth/login`, {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
