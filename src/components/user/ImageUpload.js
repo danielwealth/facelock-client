@@ -33,7 +33,7 @@ export default function ImageUpload({ setView }) {
     setMessage('Image is processing, please wait...');
 
     try {
-      // ✅ 30-second timeout guard
+      // ✅ Face detection with timeout guard
       const detection = await Promise.race([
         getFaceDescriptor(file),
         new Promise((_, reject) =>
@@ -45,11 +45,28 @@ export default function ImageUpload({ setView }) {
         setMessage('❌ No face detected. Please upload a clear headshot.');
       } else {
         console.log('Face descriptor:', detection);
-        setMessage('✅ Image locked successfully!');
-        setView('user-dashboard');
+
+        // ✅ Upload to backend after successful detection
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/upload-profile-image`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+
+        const data = await resp.json();
+
+        if (data.success) {
+          setMessage('✅ Image locked and uploaded successfully!');
+          setView('user-dashboard');
+        } else {
+          setMessage('❌ Upload failed: ' + (data.error || 'Unknown error'));
+        }
       }
     } catch (err) {
-      console.error('Detection failed:', err);
+      console.error('Detection/Upload failed:', err);
       setMessage('❌ Error: ' + err.message);
     } finally {
       setProcessing(false);
@@ -58,7 +75,6 @@ export default function ImageUpload({ setView }) {
 
   return (
     <View style={styles.container}>
-      {/* Instructions */}
       <Text style={styles.instructions}>
         Please upload a clear headshot (passport-style photo). 
         Make sure your face is centered, well-lit, and without sunglasses or masks.
@@ -80,9 +96,7 @@ export default function ImageUpload({ setView }) {
         {processing ? 'Processing...' : 'Upload'}
       </button>
 
-      {/* Spinner while processing */}
       {processing && <div style={styles.spinner}></div>}
-
       {message && <Text style={styles.message}>{message}</Text>}
     </View>
   );
