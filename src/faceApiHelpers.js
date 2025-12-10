@@ -24,14 +24,25 @@ async function ensureModels() {
   }
 }
 
-// ✅ Resize helper (returns a canvas, not Blob)
-async function resizeImage(file, maxWidth = 600) {
-  const img = await faceapi.bufferToImage(file);
+// ✅ Force conversion of File/Blob → HTMLImageElement
+async function fileToImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => resolve(img);
+      img.onerror = err => reject(err);
+    };
+    reader.onerror = err => reject(err);
+    reader.readAsDataURL(file);
+  });
+}
 
-  // Debug log
+// ✅ Resize helper (returns a canvas if needed)
+function resizeImage(img, maxWidth = 600) {
   console.log("Original image size:", img.width, img.height);
 
-  // If already small enough, return directly
   if (img.width <= maxWidth) return img;
 
   const canvas = document.createElement('canvas');
@@ -44,17 +55,24 @@ async function resizeImage(file, maxWidth = 600) {
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
   console.log("Resized image size:", canvas.width, canvas.height);
-  return canvas; // ✅ return canvas directly
+  return canvas; // ✅ pass canvas directly to detection
 }
 
 // ✅ Main detection function
-export async function getFaceDescriptor(imageFile) {
+export async function getFaceDescriptor(file) {
   await ensureModels();
 
-  const resizedImg = await resizeImage(imageFile);
+  // Always start from a proper HTMLImageElement
+  const img = await fileToImage(file);
+
+  // Resize if necessary
+  const input = resizeImage(img);
+
+  console.log("Detection input type:", input.constructor.name); 
+  // Should log "HTMLImageElement" or "HTMLCanvasElement"
 
   const detection = await faceapi
-    .detectSingleFace(resizedImg)
+    .detectSingleFace(input)
     .withFaceLandmarks()
     .withFaceDescriptor();
 
