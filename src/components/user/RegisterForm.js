@@ -9,7 +9,7 @@ export default function RegisterForm({ setView }) {
 
   const handleRegister = async () => {
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/register`, {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
