@@ -37,7 +37,7 @@ export default function ImageUpload({ setView }) {
       const detection = await Promise.race([
         getFaceDescriptor(file),
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Detection timed out')), 30000)
+          setTimeout(() => reject(new Error('Detection timed out')), 60000)
         ),
       ]);
 
