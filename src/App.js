@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
 import { loadModels } from './faceApiHelpers';
+import * as tf from '@tensorflow/tfjs';
 
 // Components
 import AdminLogin from './components/admin/LoginForm';
@@ -18,6 +19,13 @@ export default function App() {
   const [view, setView] = useState('home');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
+
+  // Force WebGL or WASM backend
+tf.setBackend('webgl').then(() => {
+  console.log("✅ TensorFlow backend set to WebGL");
+});
+  tf.setBackend('cpu');
+
 
   useEffect(() => {
     loadModels(); // ✅ load models once globally
