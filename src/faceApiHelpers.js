@@ -1,6 +1,10 @@
 import * as faceapi from 'face-api.js';
 
 let modelsLoaded = false;
+export function areModelsReady() {
+  return modelsLoaded;
+}
+
 
 export async function loadModels() {
   if (!modelsLoaded) {
