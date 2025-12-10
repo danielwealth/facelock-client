@@ -1,11 +1,8 @@
 import * as faceapi from 'face-api.js';
 
 let modelsLoaded = false;
-export function areModelsReady() {
-  return modelsLoaded;
-}
 
-
+// Load models once globally
 export async function loadModels() {
   if (!modelsLoaded) {
     await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
@@ -16,16 +13,26 @@ export async function loadModels() {
   }
 }
 
+// Exported check for UI guards
+export function areModelsReady() {
+  return modelsLoaded;
+}
+
 async function ensureModels() {
   if (!modelsLoaded) {
     await loadModels();
   }
 }
 
-// 🔧 Resize helper built into getFaceDescriptor
+// Resize helper
 async function resizeImage(file, maxWidth = 600) {
   const img = await faceapi.bufferToImage(file);
-  await new Promise(resolve => { img.onload = resolve; });
+
+  // Log dimensions for debugging
+  console.log("Original image size:", img.width, img.height);
+
+  // If already small enough, return directly
+  if (img.width <= maxWidth) return img;
 
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -36,10 +43,11 @@ async function resizeImage(file, maxWidth = 600) {
 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
+  console.log("Resized image size:", canvas.width, canvas.height);
   return canvas;
 }
 
-// ✅ Main detection function with resize
+// Main detection function
 export async function getFaceDescriptor(imageFile) {
   await ensureModels();
 
