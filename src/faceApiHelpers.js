@@ -1,30 +1,48 @@
-// client/src/faceApiHelpers.js
 import * as faceapi from 'face-api.js';
 
-let modelsReady = false;
+let modelsLoaded = false;
 
 export async function loadModels() {
-  if (!modelsReady) {
+  if (!modelsLoaded) {
     await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
     await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
     await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-    modelsReady = true;
-    console.log("✅ Models loaded");
+    modelsLoaded = true;
+    console.log("✅ Face-api.js models loaded");
   }
 }
 
-export function areModelsReady() {
-  return modelsReady;
+async function ensureModels() {
+  if (!modelsLoaded) {
+    await loadModels();
+  }
 }
 
-export async function getFaceDescriptor(imageFile) {
-  await loadModels(); // ensure models are ready
+// 🔧 Resize helper built into getFaceDescriptor
+async function resizeImage(file, maxWidth = 600) {
+  const img = await faceapi.bufferToImage(file);
+  await new Promise(resolve => { img.onload = resolve; });
 
-  const img = await faceapi.bufferToImage(imageFile);
-  await new Promise(resolve => { img.onload = resolve; }); // wait for load
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const scale = maxWidth / img.width;
+  canvas.width = maxWidth;
+  canvas.height = img.height * scale;
+
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  return canvas;
+}
+
+// ✅ Main detection function with resize
+export async function getFaceDescriptor(imageFile) {
+  await ensureModels();
+
+  const resizedImg = await resizeImage(imageFile);
 
   const detection = await faceapi
-    .detectSingleFace(img)
+    .detectSingleFace(resizedImg)
     .withFaceLandmarks()
     .withFaceDescriptor();
 
