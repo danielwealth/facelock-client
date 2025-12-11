@@ -6,13 +6,12 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
-     "@tensorflow/tfjs": "^4.22.0",
-    "face-api.js": "^0.22.2"
     "@simplewebauthn/browser": "^13.2.2",
+    "@tensorflow/tfjs": "^4.22.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "axios": "^1.12.2",
-    "face-api.js": "^0.20.0",
+    "face-api.js": "^0.20.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-native-web": "^0.21.2",
