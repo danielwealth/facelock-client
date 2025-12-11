@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@simplewebauthn/browser": "^13.2.2",
-    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs": "^3.21.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "axios": "^1.12.2",
