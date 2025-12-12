@@ -14,6 +14,9 @@ import ImageUpload from './components/user/ImageUpload';
 import ImageViewer from './components/user/ImageViewer';
 import MatchHistory from './components/user/MatchHistory';
 import ResetPassword from './components/user/ResetPassword';
+import BiometricSettings from './components/admin/BiometricSettings';
+import BiometricUnlock from './components/admin/BiometricUnlock';
+
 
 export default function App() {
   const [view, setView] = useState('home');
@@ -46,7 +49,8 @@ tf.setBackend('webgl').then(() => {
       case 'admin-login':
         return <AdminLogin onLoginSuccess={handleAdminLoginSuccess} />;
       case 'admin-dashboard':
-        return isAdminAuthenticated ? <Dashboard /> : <Text>Please log in as admin first</Text>;
+         return isAdminAuthenticated ? <Dashboard setView={setView} /> : <Text>Please log in as admin first</Text>;
+
       case 'login':
         return <UserLogin onLoginSuccess={handleUserLoginSuccess} />;
       case 'register':
@@ -61,6 +65,11 @@ tf.setBackend('webgl').then(() => {
         return <MatchHistory />;
       case 'reset':
         return <ResetPassword />;
+      case 'admin-settings':
+         return <BiometricSettings />;
+     case 'admin-unlock':
+       return <BiometricUnlock />;
+
       default:
         return <Text>Welcome! Choose a portal above.</Text>;
     }
