@@ -1,4 +1,3 @@
-// client/src/components/user/ImageUpload.js
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
 import { getFaceDescriptor, areModelsReady } from '../../faceApiHelpers';
@@ -6,6 +5,7 @@ import { getFaceDescriptor, areModelsReady } from '../../faceApiHelpers';
 export default function ImageUpload({ setView }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [key, setKey] = useState('');
   const [message, setMessage] = useState('');
   const [processing, setProcessing] = useState(false);
 
@@ -14,26 +14,28 @@ export default function ImageUpload({ setView }) {
     if (selectedFile) {
       setFile(selectedFile);
       setPreview(URL.createObjectURL(selectedFile));
-      setMessage('File selected. Click Upload to continue.');
+      setMessage('File selected. Enter your key and click Upload.');
     }
   };
 
   const handleUpload = async () => {
     if (!file) {
-      setMessage('Please select a file first.');
+      setMessage('❌ Please select a file first.');
       return;
     }
-
+    if (!key) {
+      setMessage('❌ Please enter your secret key.');
+      return;
+    }
     if (!areModelsReady()) {
-      setMessage('Models are still loading, please wait...');
+      setMessage('⚠️ Models are still loading, please wait...');
       return;
     }
 
     setProcessing(true);
-    setMessage('Image is processing, please wait...');
+    setMessage('⏳ Processing image, please wait...');
 
     try {
-      // ✅ Face detection with timeout guard
       const detection = await Promise.race([
         getFaceDescriptor(file),
         new Promise((_, reject) =>
@@ -46,9 +48,10 @@ export default function ImageUpload({ setView }) {
       } else {
         console.log('Face descriptor:', detection);
 
-        // ✅ Upload to backend after successful detection
         const formData = new FormData();
         formData.append('image', file);
+        formData.append('key', key);
+        formData.append('descriptor', JSON.stringify(Array.from(detection))); // ✅ send descriptor
 
         const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/upload-profile-image`, {
           method: 'POST',
@@ -80,17 +83,21 @@ export default function ImageUpload({ setView }) {
         Make sure your face is centered, well-lit, and without sunglasses or masks.
       </Text>
 
-      <input
-        type="file"
-        accept="image/jpeg,image/png"
-        onChange={handleFileChange}
-      />
+      <input type="file" accept="image/jpeg,image/png" onChange={handleFileChange} />
 
       {preview && (
         <div style={styles.previewContainer}>
           <img src={preview} alt="Selected preview" style={styles.preview} />
         </div>
       )}
+
+      <input
+        type="text"
+        placeholder="Enter your secret key"
+        value={key}
+        onChange={(e) => setKey(e.target.value)}
+        style={styles.keyInput}
+      />
 
       <button onClick={handleUpload} disabled={processing}>
         {processing ? 'Processing...' : 'Upload'}
@@ -108,6 +115,13 @@ const styles = StyleSheet.create({
   message: { marginTop: 12 },
   previewContainer: { marginTop: 12 },
   preview: { width: 200, height: 'auto', border: '1px solid #ccc' },
+  keyInput: {
+    marginTop: 12,
+    padding: '8px',
+    border: '1px solid #ccc',
+    borderRadius: 4,
+    width: '200px',
+  },
   spinner: {
     marginTop: 12,
     border: '4px solid #f3f3f3',
