@@ -5,22 +5,25 @@ export default function ImageViewer() {
   const [images, setImages] = useState([]);
   const [status, setStatus] = useState('Loading images...');
 
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const resp = await fetch(`${process.env.REACT_APP_API_URI}/images/unlocked-images`, {
-          credentials: 'include', // 🔑 session cookie proves user identity
-        });
-        const data = await resp.json();
+ useEffect(() => {
+  const fetchImages = async () => {
+    try {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/unlock/unlocked-images`, {
+        credentials: 'include',
+      });
+      const data = await resp.json();
 
-        const imgArray = Array.isArray(data) ? data : data.images || [];
-        setImages(imgArray);
-        setStatus(imgArray.length ? '' : 'No images found');
-      } catch (err) {
-        console.error('Failed to fetch images', err);
-        setStatus('Error fetching images');
-      }
-    };
+      const imgArray = data.images || [];
+      setImages(imgArray);
+      setStatus(imgArray.length ? '' : 'No images found');
+    } catch (err) {
+      console.error('Failed to fetch images', err);
+      setStatus('Error fetching images');
+    }
+  };
+
+  fetchImages();
+}, []);
 
     fetchImages();
   }, []);
