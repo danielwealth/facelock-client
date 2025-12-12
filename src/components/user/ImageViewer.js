@@ -22,9 +22,6 @@ export default function ImageViewer() {
     }
   };
 
-  fetchImages();
-}, []);
-
     fetchImages();
   }, []);
 
