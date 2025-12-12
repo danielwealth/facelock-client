@@ -1,74 +1,40 @@
 import React from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native-web';
 
-export default function Dashboard() {
+export default function Dashboard({ setView }) {
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Admin Dashboard</h2>
-      <p style={styles.subheading}>
+    <View style={styles.container}>
+      <Text style={styles.heading}>Admin Dashboard</Text>
+      <Text style={styles.subheading}>
         Welcome, Admin! Use the tools below to manage the system.
-      </p>
+      </Text>
 
-      <div style={styles.cardContainer}>
-        <div style={styles.card}>
-          <h3>User Management</h3>
-          <p>View and manage registered users.</p>
-          <button style={styles.button}>Go to Users</button>
-        </div>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Biometric Settings</Text>
+        <Text>Configure biometric and security options.</Text>
+        <Button title="Open Settings" onPress={() => setView('admin-settings')} />
+      </View>
 
-        <div style={styles.card}>
-          <h3>Image Controls</h3>
-          <p>Upload, lock, or unlock images.</p>
-          <button style={styles.button}>Manage Images</button>
-        </div>
-
-        <div style={styles.card}>
-          <h3>Match History</h3>
-          <p>Review biometric match logs.</p>
-          <button style={styles.button}>View History</button>
-        </div>
-
-        <div style={styles.card}>
-          <h3>Settings</h3>
-          <p>Configure biometric and security options.</p>
-          <button style={styles.button}>Open Settings</button>
-        </div>
-      </div>
-    </div>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Biometric Unlock</Text>
+        <Text>Unlock images or users with biometric verification.</Text>
+        <Button title="Unlock" onPress={() => setView('admin-unlock')} />
+      </View>
+    </View>
   );
 }
 
-const styles = {
-  container: {
-    padding: 20,
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 10,
-  },
-  subheading: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-  cardContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 20,
-  },
+const styles = StyleSheet.create({
+  container: { padding: 20 },
+  heading: { fontSize: 24, fontWeight: '700', marginBottom: 10 },
+  subheading: { fontSize: 16, marginBottom: 20 },
   card: {
-    flex: '1 1 200px',
-    border: '1px solid #ccc',
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 8,
     padding: 16,
+    marginBottom: 12,
     backgroundColor: '#f9f9f9',
   },
-  button: {
-    marginTop: 10,
-    padding: '8px 12px',
-    border: 'none',
-    borderRadius: 4,
-    backgroundColor: '#007bff',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-};
+  cardTitle: { fontSize: 18, fontWeight: '600', marginBottom: 6 },
+});
