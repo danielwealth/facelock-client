@@ -2,27 +2,34 @@ import React, { useEffect, useState } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native-web';
 
 export default function ImageViewer() {
-  const [images, setImages] = useState([]);
-  const [status, setStatus] = useState('Loading images...');
+  const [image, setImage] = useState(null);
+  const [status, setStatus] = useState('Loading image...');
 
- useEffect(() => {
-  const fetchImages = async () => {
-    try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/unlock/unlocked-images`, {
-        credentials: 'include',
-      });
-      const data = await resp.json();
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const resp = await fetch(`${process.env.REACT_APP_API_URI}/unlock/unlocked-image`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          // If your unlock route requires a key, send it here:
+          // body: JSON.stringify({ key: enteredKey }),
+        });
+        const data = await resp.json();
 
-      const imgArray = data.images || [];
-      setImages(imgArray);
-      setStatus(imgArray.length ? '' : 'No images found');
-    } catch (err) {
-      console.error('Failed to fetch images', err);
-      setStatus('Error fetching images');
-    }
-  };
+        if (data.success && data.image) {
+          setImage(data.image);
+          setStatus('');
+        } else {
+          setStatus(data.error || 'No image found');
+        }
+      } catch (err) {
+        console.error('Failed to fetch image', err);
+        setStatus('Error fetching image');
+      }
+    };
 
-    fetchImages();
+    fetchImage();
   }, []);
 
   return (
@@ -30,13 +37,7 @@ export default function ImageViewer() {
       {status ? (
         <Text style={styles.status}>{status}</Text>
       ) : (
-        images.map((imgPath, i) => (
-          <Image
-            key={i}
-            source={{ uri: `${process.env.REACT_APP_API_URI}${imgPath}` }}
-            style={styles.image}
-          />
-        ))
+        <Image source={{ uri: image }} style={styles.image} />
       )}
     </View>
   );
@@ -44,16 +45,14 @@ export default function ImageViewer() {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   image: {
-    width: 150,
-    height: 150,
+    width: 200,
+    height: 200,
     borderRadius: 8,
-    marginRight: 16,
-    marginBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 4,
