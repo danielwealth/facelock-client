@@ -1,43 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native-web';
 
 export default function ImageViewer() {
+  const [key, setKey] = useState('');
   const [image, setImage] = useState(null);
-  const [status, setStatus] = useState('Loading image...');
+  const [status, setStatus] = useState('Enter your secret key to unlock');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchImage = async () => {
-      try {
-        const resp = await fetch(`${process.env.REACT_APP_API_URI}/unlock/unlocked-image`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          // If your unlock route requires a key, send it here:
-          // body: JSON.stringify({ key: enteredKey }),
-        });
-        const data = await resp.json();
+  const handleUnlock = async () => {
+    if (!key) {
+      setStatus('❌ Please enter your secret key.');
+      return;
+    }
 
-        if (data.success && data.image) {
-          setImage(data.image);
-          setStatus('');
-        } else {
-          setStatus(data.error || 'No image found');
-        }
-      } catch (err) {
-        console.error('Failed to fetch image', err);
-        setStatus('Error fetching image');
+    setLoading(true);
+    setStatus('⏳ Unlocking image...');
+
+    try {
+      const resp = await fetch(`${process.env.REACT_APP_API_URI}/unlock/unlocked-image`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key }), // ✅ send secret key
+      });
+
+      const data = await resp.json();
+
+      if (data.success && data.image) {
+        setImage(data.image);
+        setStatus('');
+      } else {
+        setStatus('❌ Unlock failed: ' + (data.error || 'Unknown error'));
       }
-    };
-
-    fetchImage();
-  }, []);
+    } catch (err) {
+      console.error('Failed to unlock image', err);
+      setStatus('❌ Error unlocking image');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {status ? (
-        <Text style={styles.status}>{status}</Text>
-      ) : (
-        <Image source={{ uri: image }} style={styles.image} />
+      <Text style={styles.instructions}>{status}</Text>
+
+      <input
+        type="text"
+        placeholder="Enter your secret key"
+        value={key}
+        onChange={(e) => setKey(e.target.value)}
+        style={styles.keyInput}
+      />
+
+      <button onClick={handleUnlock} disabled={loading}>
+        {loading ? 'Processing...' : 'Unlock'}
+      </button>
+
+      {image && (
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: image }} style={styles.image} />
+        </View>
       )}
     </View>
   );
@@ -49,6 +71,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  instructions: {
+    marginBottom: 12,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  keyInput: {
+    marginTop: 12,
+    padding: '8px',
+    border: '1px solid #ccc',
+    borderRadius: 4,
+    width: '200px',
+  },
+  imageContainer: {
+    marginTop: 16,
+  },
   image: {
     width: 200,
     height: 200,
@@ -56,9 +93,5 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 4,
-  },
-  status: {
-    fontSize: 16,
-    color: 'gray',
   },
 });
