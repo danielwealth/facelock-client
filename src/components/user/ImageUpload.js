@@ -48,21 +48,39 @@ export default function ImageUpload({ setView }) {
       } else {
         console.log('Face descriptor:', detection);
 
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('key', key);
-        formData.append('descriptor', JSON.stringify(Array.from(detection))); // ✅ send descriptor
-
-        const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/upload-profile-image`, {
+        // Step 1: Ask backend for pre-signed PUT URL
+        const resp = await fetch(`${process.env.REACT_APP_API_URI}/s3/get-upload-url`, {
           method: 'POST',
           credentials: 'include',
-          body: formData,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name, filetype: file.type }),
+        });
+        const { uploadUrl, key: s3Key, viewUrl } = await resp.json();
+
+        // Step 2: Upload file directly to S3
+        await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file,
         });
 
-        const data = await resp.json();
+        // Step 3: Save metadata (descriptor + secret key + S3 key) in backend DB
+        const saveResp = await fetch(`${process.env.REACT_APP_API_URI}/auth/save-profile-image`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            key,
+            descriptor: Array.from(detection),
+            s3Key,
+          }),
+        });
+
+        const data = await saveResp.json();
 
         if (data.success) {
           setMessage('✅ Image locked and uploaded successfully!');
+          setPreview(viewUrl); // immediate preview from signed GET URL
           setView('user-dashboard');
         } else {
           setMessage('❌ Upload failed: ' + (data.error || 'Unknown error'));
