@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
+import AdminLogoutButton from './LogoutButton'; // ✅ import your admin logout component
 
 export default function Dashboard({ setView }) {
   return (
@@ -20,9 +21,11 @@ export default function Dashboard({ setView }) {
         <Text>Unlock images or users with biometric verification.</Text>
         <Button title="Unlock" onPress={() => setView('admin-unlock')} />
       </View>
-    </View>
-   {/* 👇 Add logout button */}
-      <AdminLogoutButton />
+
+      {/* 👇 Logout button at the bottom */}
+      <View style={styles.logout}>
+        <AdminLogoutButton />
+      </View>
     </View>
   );
 }
@@ -40,4 +43,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
   },
   cardTitle: { fontSize: 18, fontWeight: '600', marginBottom: 6 },
+  logout: { marginTop: 20 },
 });
