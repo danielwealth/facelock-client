@@ -3,7 +3,7 @@ import { View, Image, Text, StyleSheet } from 'react-native-web';
 
 export default function ImageViewer() {
   const [key, setKey] = useState('');
-  const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
   const [status, setStatus] = useState('Enter your secret key to unlock');
   const [loading, setLoading] = useState(false);
 
@@ -21,14 +21,16 @@ export default function ImageViewer() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key }), // ✅ send secret key
+        body: JSON.stringify({ key }), // send secret key
       });
 
       const data = await resp.json();
+      console.log('Unlock response:', data); // helpful for debugging
 
-      if (data.success && data.image) {
-        setImage(data.image);
-        setStatus('');
+      // ✅ match backend response property name
+      if (data.success && data.url) {
+        setImageUrl(data.url);
+        setStatus('✅ Image unlocked');
       } else {
         setStatus('❌ Unlock failed: ' + (data.error || 'Unknown error'));
       }
@@ -56,9 +58,9 @@ export default function ImageViewer() {
         {loading ? 'Processing...' : 'Unlock'}
       </button>
 
-      {image && (
+      {imageUrl && (
         <View style={styles.imageContainer}>
-          <Image source={{ uri: image }} style={styles.image} />
+          <Image source={{ uri: imageUrl }} style={styles.image} />
         </View>
       )}
     </View>
