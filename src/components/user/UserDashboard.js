@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
+import LogoutButton from './LogoutButton'; // ✅ import your logout component
 
 export default function UserDashboard({ setView }) {
   return (
@@ -14,6 +15,11 @@ export default function UserDashboard({ setView }) {
         <Button title="Image Viewer" onPress={() => setView('viewer')} />
         <Button title="Match History" onPress={() => setView('history')} />
       </View>
+
+      {/* 👇 Add logout button at the bottom */}
+      <View style={styles.logout}>
+        <LogoutButton />
+      </View>
     </View>
   );
 }
@@ -22,5 +28,6 @@ const styles = StyleSheet.create({
   container: { padding: 20 },
   heading: { fontSize: 22, fontWeight: 'bold', marginBottom: 16 },
   message: { fontSize: 16, marginBottom: 20 },
-  actions: { gap: 12 },
+  actions: { gap: 12, marginBottom: 20 },
+  logout: { marginTop: 20 },
 });
