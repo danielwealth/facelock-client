@@ -21,6 +21,9 @@ export default function Dashboard({ setView }) {
         <Button title="Unlock" onPress={() => setView('admin-unlock')} />
       </View>
     </View>
+   {/* 👇 Add logout button */}
+      <AdminLogoutButton />
+    </View>
   );
 }
 
