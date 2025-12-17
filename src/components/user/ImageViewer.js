@@ -25,11 +25,11 @@ export default function ImageViewer() {
       });
 
       const data = await resp.json();
-      console.log('Unlock response:', data); // helpful for debugging
+      console.log('Unlock response:', data);
 
       // ✅ match backend response property name
-      if (data.success && data.url) {
-        setImageUrl(data.url);
+      if (data.success && data.imageUrl) {
+        setImageUrl(data.imageUrl);
         setStatus('✅ Image unlocked');
       } else {
         setStatus('❌ Unlock failed: ' + (data.error || 'Unknown error'));
