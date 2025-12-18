@@ -1,11 +1,9 @@
 // client/src/components/LogoutButton.js
 import React, { useState } from 'react';
 import { View, Button, Text, StyleSheet } from 'react-native-web';
-import { useNavigate } from 'react-router-dom';
 
-export default function LogoutButton() {
+export default function LogoutButton({ setView }) {
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -14,7 +12,7 @@ export default function LogoutButton() {
         credentials: 'include',
       });
       setMessage('Logged out');
-      navigate('/login'); // ✅ redirect to login page
+      setView('login'); // ✅ switch back to login view
     } catch (err) {
       console.error(err);
       setMessage('Logout failed');
