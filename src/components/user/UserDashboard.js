@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
-import LogoutButton from './LogoutButton'; // ✅ import your logout component
+import LogoutButton from '../LogoutButton'; // ✅ import your logout component
 
 export default function UserDashboard({ setView }) {
   return (
