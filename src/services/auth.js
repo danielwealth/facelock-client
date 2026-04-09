@@ -8,7 +8,6 @@ async function adminLogin(email, password) {
     credentials: 'include',
     body: JSON.stringify({ email, password }),
   });
-
   const payload = await res.json().catch(() => ({}));
   if (!res.ok) {
     const message = payload.error || payload.message || res.statusText || 'Login failed';
@@ -16,27 +15,35 @@ async function adminLogin(email, password) {
     err.status = res.status;
     throw err;
   }
-
-  // expected payload: { token, user, role, ... }
   if (payload.token) {
-    try { localStorage.setItem('token', payload.token); } catch (e) { /* ignore storage errors */ }
+    try { localStorage.setItem('token', payload.token); } catch (e) {}
   }
   return payload;
 }
-// client/src/services/auth.js (append)
-async function userLogin(email, password) {
-  return adminLogin(email, password); // reuse same logic if backend uses same endpoint
-}
 
+async function userRegister(email, password) {
+  const res = await fetch(`${API_BASE}/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email, password }),
+  });
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const message = payload.error || payload.message || res.statusText || 'Registration failed';
+    const err = new Error(message);
+    err.status = res.status;
+    throw err;
+  }
+  return payload;
+}
 
 function getToken() {
   try { return localStorage.getItem('token'); } catch (e) { return null; }
 }
 
 function logout() {
-  try { localStorage.removeItem('token'); } catch (e) { /* ignore */ }
-  // optionally call server logout endpoint if you have one
-  // fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' }).catch(()=>{});
+  try { localStorage.removeItem('token'); } catch (e) {}
 }
 
-export { adminLogin, userLogin, getToken, logout };
+export { adminLogin, userRegister, getToken, logout };
