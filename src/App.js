@@ -4,7 +4,7 @@ import { View, Text, Button, StyleSheet } from 'react-native-web';
 import { loadModels } from './faceApiHelpers';
 import * as tf from '@tensorflow/tfjs';
 
-// Components
+// Components (existing)
 import AdminLogin from './components/admin/LoginForm';
 import Dashboard from './components/admin/Dashboard';
 import UserDashboard from './components/user/UserDashboard';
@@ -17,21 +17,22 @@ import ResetPassword from './components/user/ResetPassword';
 import BiometricSettings from './components/admin/BiometricSettings';
 import BiometricUnlock from './components/admin/BiometricUnlock';
 
+// New Document Verification components
+import VerificationDashboard from './components/VerificationDashboard';
 
 export default function App() {
   const [view, setView] = useState('home');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
 
-  // Force WebGL or WASM backend
-tf.setBackend('webgl').then(() => {
-  console.log("✅ TensorFlow backend set to WebGL");
-});
-  tf.setBackend('cpu');
-
-
+  // TensorFlow backend preference
   useEffect(() => {
-    loadModels(); // ✅ load models once globally
+    tf.setBackend('webgl').then(() => {
+      console.log('✅ TensorFlow backend set to WebGL');
+    }).catch(() => {
+      tf.setBackend('cpu');
+    });
+    loadModels();
   }, []);
 
   const handleAdminLoginSuccess = () => {
@@ -49,8 +50,7 @@ tf.setBackend('webgl').then(() => {
       case 'admin-login':
         return <AdminLogin onLoginSuccess={handleAdminLoginSuccess} />;
       case 'admin-dashboard':
-         return isAdminAuthenticated ? <Dashboard setView={setView} /> : <Text>Please log in as admin first</Text>;
-
+        return isAdminAuthenticated ? <Dashboard setView={setView} /> : <Text>Please log in as admin first</Text>;
       case 'login':
         return <UserLogin onLoginSuccess={handleUserLoginSuccess} />;
       case 'register':
@@ -66,10 +66,11 @@ tf.setBackend('webgl').then(() => {
       case 'reset':
         return <ResetPassword />;
       case 'admin-settings':
-         return <BiometricSettings />;
-     case 'admin-unlock':
-       return <BiometricUnlock />;
-
+        return <BiometricSettings />;
+      case 'admin-unlock':
+        return <BiometricUnlock />;
+      case 'document-verification':
+        return <VerificationDashboard setView={setView} isAdmin={isAdminAuthenticated} />;
       default:
         return <Text>Welcome! Choose a portal above.</Text>;
     }
@@ -88,6 +89,7 @@ tf.setBackend('webgl').then(() => {
         <Button title="Image Viewer" onPress={() => setView('viewer')} />
         <Button title="Match History" onPress={() => setView('history')} />
         <Button title="Reset Password" onPress={() => setView('reset')} />
+        <Button title="Document Verification" onPress={() => setView('document-verification')} />
       </View>
       {renderView()}
     </View>
