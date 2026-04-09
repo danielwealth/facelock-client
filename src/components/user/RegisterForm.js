@@ -1,32 +1,31 @@
 // client/src/components/user/RegisterForm.js
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, Pressable } from 'react-native-web';
+import { userRegister } from '../../services/auth';
 
 export default function RegisterForm({ setView }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
+    setMessage('');
+    setLoading(true);
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (resp.ok) {
-        setMessage('Registered!');
-        setView('login'); // ✅ switch to login view after success
+      const res = await userRegister(email.trim(), password);
+      if (res && (res.success || res.user)) {
+        setMessage('✅ Registered successfully');
+        setView('login');
       } else {
-        const errText = await resp.text();
-        console.error("Registration failed:", errText);
-        setMessage('Registration failed');
+        const err = res && res.error ? res.error : 'Registration failed';
+        setMessage(err);
       }
     } catch (err) {
-      console.error("Error registering:", err);
-      setMessage('Error registering');
+      console.error('Registration error', err);
+      setMessage(err?.message || 'Error registering');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,19 +34,21 @@ export default function RegisterForm({ setView }) {
       <TextInput
         placeholder="Email"
         value={email}
-        onChangeText={setEmail}
+        onChange={(e) => setEmail(e.target.value)}
         style={styles.input}
+        autoCapitalize="none"
+        autoComplete="email"
       />
       <TextInput
         placeholder="Password"
         secureTextEntry
         value={password}
-        onChangeText={setPassword}
+        onChange={(e) => setPassword(e.target.value)}
         style={styles.input}
       />
 
-      <Pressable style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
+      <Pressable style={styles.button} onPress={handleRegister} disabled={loading}>
+        <Text style={styles.buttonText}>{loading ? 'Registering...' : 'Register'}</Text>
       </Pressable>
 
       {message ? <Text style={styles.message}>{message}</Text> : null}
@@ -56,9 +57,7 @@ export default function RegisterForm({ setView }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
+  container: { padding: 16 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -72,11 +71,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignItems: 'center',
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  message: {
-    marginTop: 12,
-  },
+  buttonText: { color: '#fff', fontWeight: 'bold' },
+  message: { marginTop: 12 },
 });
