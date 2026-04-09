@@ -1,148 +1,106 @@
 // client/src/services/auth.js
+import api from './api';
+import { getExpiry } from '../utils/jwt';
+
 const API_BASE = process.env.REACT_APP_API_URL || '';
+const REFRESH_BUFFER_MS = 60 * 1000; // refresh 60s before expiry
 
-/**
- * Safely write a token to localStorage
- */
-function setToken(token) {
-  try {
-    if (token) localStorage.setItem('token', token);
-  } catch (e) {
-    // ignore storage errors (private mode, quota, etc.)
+function setTokenLocal(token) {
+  try { localStorage.setItem('token', token); } catch {}
+}
+
+function getTokenLocal() {
+  try { return localStorage.getItem('token'); } catch { return null; }
+}
+
+function clearTokenLocal() {
+  try { localStorage.removeItem('token'); } catch {}
+}
+
+let refreshTimer = null;
+let onAuthChange = null; // callback to notify UI
+
+function scheduleRefresh(token) {
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
   }
+  const expiry = getExpiry(token);
+  if (!expiry) return;
+  const now = Date.now();
+  const msUntilRefresh = Math.max(1000, expiry - now - REFRESH_BUFFER_MS);
+  refreshTimer = setTimeout(async () => {
+    try {
+      await refreshToken();
+    } catch {
+      // refresh failed; let request interceptor or UI handle logout
+      if (typeof onAuthChange === 'function') onAuthChange({ loggedOut: true });
+    }
+  }, msUntilRefresh);
 }
 
-/**
- * Safely read token from localStorage
- */
-function getToken() {
-  try {
-    return localStorage.getItem('token');
-  } catch (e) {
-    return null;
-  }
-}
+export function setAuthChangeHandler(fn) { onAuthChange = fn; }
 
-/**
- * Remove token from localStorage
- */
-function clearToken() {
-  try {
-    localStorage.removeItem('token');
-  } catch (e) {
-    // ignore
-  }
-}
-
-/**
- * Build Authorization headers when token exists
- */
-function authHeaders() {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-/**
- * Admin login
- * On success stores token if returned by server and returns payload.
- */
-async function adminLogin(email, password) {
-  const res = await fetch(`${API_BASE}/auth/admin/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ email, password }),
-  });
-
-  const payload = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const message = payload.error || payload.message || res.statusText || 'Login failed';
-    const err = new Error(message);
-    err.status = res.status;
-    throw err;
-  }
-
-  if (payload.token) setToken(payload.token);
-  return payload;
-}
-
-/**
- * User registration
- */
-async function userRegister(email, password) {
-  const res = await fetch(`${API_BASE}/auth/signup`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ email, password }),
-  });
-
-  const payload = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const message = payload.error || payload.message || res.statusText || 'Registration failed';
-    const err = new Error(message);
-    err.status = res.status;
-    throw err;
-  }
-
-  return payload;
-}
-
-/**
- * User login (non-admin)
- * Stores token if returned by server and returns payload.
- */
-async function userLogin(email, password) {
+export async function userLogin(email, password) {
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({ email, password }),
   });
-
   const payload = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const message = payload.error || payload.message || res.statusText || 'Login failed';
-    const err = new Error(message);
+    const err = new Error(payload.error || payload.message || 'Login failed');
     err.status = res.status;
     throw err;
   }
-
-  if (payload.token) setToken(payload.token);
+  if (payload.token) {
+    setTokenLocal(payload.token);
+    scheduleRefresh(payload.token);
+    if (typeof onAuthChange === 'function') onAuthChange({ loggedIn: true, token: payload.token });
+  }
   return payload;
 }
 
-/**
- * Logout: attempt server logout then clear local token
- */
-async function logout() {
+export async function refreshToken() {
+  // call backend refresh endpoint
+  const res = await fetch(`${API_BASE}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(payload.error || payload.message || 'Refresh failed');
+    err.status = res.status;
+    throw err;
+  }
+  if (payload.token) {
+    setTokenLocal(payload.token);
+    scheduleRefresh(payload.token);
+    if (typeof onAuthChange === 'function') onAuthChange({ refreshed: true, token: payload.token });
+  }
+  return payload;
+}
+
+export async function logout() {
   try {
-    // best-effort server logout (cookies); ignore network errors
-    await fetch(`${API_BASE}/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-    }).catch(() => {});
-  } catch {
-    // ignore
+    await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' }).catch(() => {});
   } finally {
-    clearToken();
+    clearTokenLocal();
+    if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
+    if (typeof onAuthChange === 'function') onAuthChange({ loggedOut: true });
   }
 }
 
-/**
- * Convenience: return headers merged with auth when needed
- */
-function getAuthHeaders(additional = {}) {
-  return { 'Content-Type': 'application/json', ...authHeaders(), ...additional };
-}
+export function getToken() { return getTokenLocal(); }
+export function setToken(token) { setTokenLocal(token); scheduleRefresh(token); }
 
-export {
-  adminLogin,
-  userRegister,
+export default {
   userLogin,
+  refreshToken,
+  logout,
   getToken,
   setToken,
-  clearToken,
-  logout,
-  getAuthHeaders,
+  setAuthChangeHandler,
 };
