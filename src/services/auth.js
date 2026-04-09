@@ -23,6 +23,11 @@ async function adminLogin(email, password) {
   }
   return payload;
 }
+// client/src/services/auth.js (append)
+async function userLogin(email, password) {
+  return adminLogin(email, password); // reuse same logic if backend uses same endpoint
+}
+
 
 function getToken() {
   try { return localStorage.getItem('token'); } catch (e) { return null; }
@@ -34,4 +39,4 @@ function logout() {
   // fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' }).catch(()=>{});
 }
 
-export { adminLogin, getToken, logout };
+export { adminLogin, userLogin, getToken, logout };
