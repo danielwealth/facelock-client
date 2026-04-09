@@ -1,11 +1,15 @@
+// client/src/components/user/ImageViewer.js
 import React, { useState } from 'react';
-import { View, Image, Text, StyleSheet } from 'react-native-web';
+import { View, Text, StyleSheet } from 'react-native-web';
+import { getToken } from '../../services/auth';
 
 export default function ImageViewer() {
   const [key, setKey] = useState('');
   const [imageUrl, setImageUrl] = useState(null);
   const [status, setStatus] = useState('Enter your secret key to unlock');
   const [loading, setLoading] = useState(false);
+
+  const API_BASE = process.env.REACT_APP_API_URL || '';
 
   const handleUnlock = async () => {
     if (!key) {
@@ -17,26 +21,37 @@ export default function ImageViewer() {
     setStatus('⏳ Unlocking image...');
 
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/unlock/unlocked-image`, {
+      const token = getToken();
+      const resp = await fetch(`${API_BASE}/unlock/unlocked-image`, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key }), // send secret key
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ key }),
       });
 
-      const data = await resp.json();
-      console.log('Unlock response:', data);
+      const data = await resp.json().catch(() => ({}));
 
-      // ✅ match backend response property name
+      if (!resp.ok) {
+        const msg = data.error || data.message || resp.statusText || 'Unlock request failed';
+        setStatus('❌ Unlock failed: ' + msg);
+        setImageUrl(null);
+        return;
+      }
+
       if (data.success && data.imageUrl) {
         setImageUrl(data.imageUrl);
         setStatus('✅ Image unlocked');
       } else {
         setStatus('❌ Unlock failed: ' + (data.error || 'Unknown error'));
+        setImageUrl(null);
       }
     } catch (err) {
       console.error('Failed to unlock image', err);
-      setStatus('❌ Error unlocking image');
+      setStatus('❌ Error unlocking image: ' + (err.message || 'Network error'));
+      setImageUrl(null);
     } finally {
       setLoading(false);
     }
@@ -54,14 +69,16 @@ export default function ImageViewer() {
         style={styles.keyInput}
       />
 
-      <button onClick={handleUnlock} disabled={loading}>
-        {loading ? 'Processing...' : 'Unlock'}
-      </button>
+      <div style={{ marginTop: 8 }}>
+        <button onClick={handleUnlock} disabled={loading}>
+          {loading ? 'Processing...' : 'Unlock'}
+        </button>
+      </div>
 
       {imageUrl && (
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: imageUrl }} style={styles.image} />
-        </View>
+        <div style={styles.imageContainer}>
+          <img src={imageUrl} alt="Unlocked" style={styles.image} />
+        </div>
       )}
     </View>
   );
@@ -92,8 +109,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    boxShadow: '0 4px 8px rgba(0,0,0,0.12)',
+    objectFit: 'cover',
   },
 });
