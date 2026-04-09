@@ -17,6 +17,7 @@ export default function SignUp() {
       setStatus('Please enter both email and password');
       return;
     }
+
     setLoading(true);
     try {
       const res = await userRegister(email.trim(), password);
