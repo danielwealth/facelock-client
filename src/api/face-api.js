@@ -1,119 +1,103 @@
-// client/src/api.js
+// client/src/face-api.js
 import * as faceapi from 'face-api.js';
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native-web';
 
-// Load models once
-async function loadModels() {
-  await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
-  await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-  await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+// Track model load state
+let modelsLoaded = false;
+
+/**
+ * Load face-api models from /models (served by your static assets)
+ */
+export async function loadModels() {
+  if (modelsLoaded) return;
+  await Promise.all([
+    faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
+    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+    faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+  ]);
+  modelsLoaded = true;
+  console.log('✅ Face-api.js models loaded');
 }
 
-// Extract face descriptor
-export async function getFaceDescriptor(imageFile) {
-  await loadModels();
+/**
+ * Ensure models are loaded before any detection
+ */
+async function ensureModels() {
+  if (!modelsLoaded) await loadModels();
+}
 
-  const img = await faceapi.bufferToImage(imageFile);
-
-  // Ensure the image is fully loaded
-  await new Promise(resolve => {
-    img.onload = resolve;
+/**
+ * Convert a File/Blob to an HTMLImageElement and wait for load
+ */
+async function fileToImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = (e) => reject(new Error('Failed to load image'));
+    img.src = URL.createObjectURL(file);
   });
+}
+
+/**
+ * Get 128-d face embedding (descriptor) for an image File/Blob
+ * @param {File|Blob|HTMLImageElement} input - file or already loaded image element
+ * @returns {Float32Array} descriptor
+ */
+export async function getFaceEmbedding(input) {
+  await ensureModels();
+
+  let img;
+  if (input instanceof HTMLImageElement) {
+    img = input;
+  } else {
+    img = await fileToImage(input);
+  }
 
   const detection = await faceapi
     .detectSingleFace(img)
     .withFaceLandmarks()
     .withFaceDescriptor();
 
-  if (!detection) {
-    throw new Error("No face detected in image");
+  if (!detection) throw new Error('No face detected in image');
+  return detection.descriptor; // Float32Array
+}
+
+/**
+ * Alias for embedding (keeps your previous naming)
+ */
+export async function getFaceDescriptor(input) {
+  return getFaceEmbedding(input);
+}
+
+/**
+ * Compute Euclidean distance between two descriptors (Float32Array or Array)
+ */
+export function descriptorDistance(a, b) {
+  if (!a || !b || a.length !== b.length) {
+    throw new Error('Descriptors must be same length arrays');
   }
-
-  return detection.descriptor; // 128-d vector
-}
-
-
-// Login handler
-export async function handleLogin(email, password) {
-  const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-    credentials: 'include',
-  });
-  const data = await resp.json();
-  if (resp.ok) {
-    localStorage.setItem('token', data.token);
-    window.location.href = '/dashboard';
+  let sum = 0;
+  for (let i = 0; i < a.length; i++) {
+    const d = a[i] - b[i];
+    sum += d * d;
   }
-  return data;
+  return Math.sqrt(sum);
 }
 
-// Fetch unlocked images
-export async function fetchUnlockedImages() {
-  const token = localStorage.getItem('token');
-  const resp = await fetch(`${process.env.REACT_APP_API_URI}/images/unlocked-images`, {
-    headers: { Authorization: `Bearer ${token}` },
-    credentials: 'include',
-  });
-  return resp.json();
-}
-
-// Match user descriptor against stored ones
-export async function findMatchingUser(newDescriptor, threshold = 0.6) {
-  const resp = await fetch(`${process.env.REACT_APP_API_URI}/users/descriptors`, {
-    credentials: 'include',
-  });
-  const allDescriptors = await resp.json();
-
-  for (const record of allDescriptors) {
-    const distance = Math.sqrt(
-      newDescriptor.reduce((sum, val, i) => sum + Math.pow(val - record.descriptor[i], 2), 0)
-    );
-    if (distance < threshold) {
-      return record.userId;
+/**
+ * Find best match from a list of candidate descriptors.
+ * @param {Float32Array} probe - descriptor to match
+ * @param {Array<{ userId: string, descriptor: number[] }>} candidates - list from backend
+ * @param {number} threshold - distance threshold (default 0.6)
+ * @returns { { userId: string, distance: number } | null }
+ */
+export function findBestMatch(probe, candidates = [], threshold = 0.6) {
+  if (!probe || !candidates || !candidates.length) return null;
+  let best = null;
+  for (const c of candidates) {
+    const dist = descriptorDistance(probe, c.descriptor);
+    if (dist < threshold && (!best || dist < best.distance)) {
+      best = { userId: c.userId, distance: dist };
     }
   }
-  return null;
+  return best;
 }
-
-// OTP Request Form using React Native Web primitives
-export function RequestOTPForm() {
-  const [phone, setPhone] = useState('');
-
-  const handleRequest = async () => {
-    await fetch(`${process.env.REACT_APP_API_URI}/auth/request-otp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
-      credentials: 'include',
-    });
-    alert('OTP sent to your phone');
-  };
-
-  return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder="Enter phone number"
-        keyboardType="phone-pad"
-        value={phone}
-        onChangeText={setPhone}
-        style={styles.input}
-      />
-      <Button title="Request OTP" onPress={handleRequest} />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    marginBottom: 12,
-  },
-});
