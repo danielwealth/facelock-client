@@ -1,7 +1,7 @@
 // client/src/components/LogoutButton.js
 import React, { useState } from 'react';
 import { View, Button, Text, StyleSheet } from 'react-native-web';
-import { logout as clearLocalAuth } from '../services/auth';
+import { logout as clearLocalAuth } from '../../services/auth';
 
 export default function LogoutButton({ setView }) {
   const [message, setMessage] = useState('');
