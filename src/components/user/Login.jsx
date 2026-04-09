@@ -1,53 +1,62 @@
-
+// client/src/components/user/Login.jsx
 import React, { useState } from 'react';
+import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
+import { adminLogin } from '../../services/auth'; // reuse adminLogin or create userLogin
 
 export default function UserLogin({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [status, setStatus] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setMessage('');
+    setLoading(true);
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // keep session cookie
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (resp.ok) {
-        const data = await resp.json();
-        setStatus('Logged in!');
-        if (onLoginSuccess) onLoginSuccess(); // ✅ notify App.js to switch to user-dashboard
-      } else {
-        const data = await resp.json().catch(() => ({}));
-        setStatus(data.error || 'Login failed');
-      }
+      const data = await adminLogin(email.trim(), password); // backend should accept same endpoint for users
+      setMessage('✅ Login successful');
+      if (onLoginSuccess) onLoginSuccess();
     } catch (err) {
-      console.error(err);
-      setStatus('Error logging in');
+      console.error('User login error', err);
+      setMessage(err?.message || 'Error logging in');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: 16 }}>
-      <h2>User Login</h2>
-      <input
-        type="email"
+    <View style={styles.container}>
+      <Text style={styles.heading}>User Login</Text>
+
+      <TextInput
         placeholder="Email"
         value={email}
-        onChange={e => setEmail(e.target.value)}
-        style={{ display: 'block', marginBottom: 12, padding: 8 }}
+        onChange={(e) => setEmail(e.target.value)}
+        style={styles.input}
+        autoCapitalize="none"
+        autoComplete="email"
       />
-      <input
-        type="password"
+
+      <TextInput
         placeholder="Password"
+        secureTextEntry
         value={password}
-        onChange={e => setPassword(e.target.value)}
-        style={{ display: 'block', marginBottom: 12, padding: 8 }}
+        onChange={(e) => setPassword(e.target.value)}
+        style={styles.input}
       />
-      <button onClick={handleLogin}>Login</button>
-      {status && <p style={{ marginTop: 12 }}>{status}</p>}
-    </div>
+
+      <div style={{ marginTop: 8 }}>
+        <Button title={loading ? 'Signing in...' : 'Login'} onPress={handleLogin} disabled={loading} />
+      </div>
+
+      {message ? <Text style={styles.message}>{message}</Text> : null}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { padding: 16 },
+  heading: { fontSize: 20, marginBottom: 12 },
+  input: { borderWidth: 1, borderColor: '#ccc', padding: 8, marginBottom: 12, width: '100%' },
+  message: { marginTop: 12, color: 'red' },
+});
