@@ -18,7 +18,7 @@ import BiometricSettings from './components/admin/BiometricSettings';
 import BiometricUnlock from './components/admin/BiometricUnlock';
 
 // New Document Verification components
-import VerificationDashboard from './components/VerificationDashboard';
+import VerificationDashboard from './components/user/VerificationDashboard';
 
 export default function App() {
   const [view, setView] = useState('home');
