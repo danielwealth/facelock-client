@@ -1,31 +1,27 @@
+// client/src/components/admin/LoginForm.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
+import { adminLogin } from '../../services/auth';
 
 export default function AdminLogin({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setMessage('');
+    setLoading(true);
     try {
-      const resp = await fetch(`${process.env.REACT_APP_API_URI}/auth/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await resp.json();
-
-      if (resp.ok) {
-        setMessage('✅ Admin login successful');
-        if (onLoginSuccess) onLoginSuccess(); // Switch to admin dashboard
-      } else {
-        setMessage(data.error || 'Login failed');
-      }
+      const data = await adminLogin(email.trim(), password);
+      setMessage('✅ Admin login successful');
+      // optional: you can inspect data.role or data.user here
+      if (onLoginSuccess) onLoginSuccess();
     } catch (err) {
-      console.error(err);
-      setMessage('Error logging in');
+      console.error('Admin login error', err);
+      setMessage(err.message || 'Error logging in');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,17 +31,21 @@ export default function AdminLogin({ onLoginSuccess }) {
       <TextInput
         placeholder="Admin Email"
         value={email}
-        onChangeText={setEmail}
+        onChange={(e) => setEmail(e.target.value)}
         style={styles.input}
+        autoCapitalize="none"
+        autoComplete="email"
       />
       <TextInput
         placeholder="Admin Password"
         secureTextEntry
         value={password}
-        onChangeText={setPassword}
+        onChange={(e) => setPassword(e.target.value)}
         style={styles.input}
       />
-      <Button title="Login" onPress={handleLogin} />
+      <div style={{ marginTop: 8 }}>
+        <Button title={loading ? 'Signing in...' : 'Login'} onPress={handleLogin} disabled={loading} />
+      </div>
       {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
   );
@@ -54,6 +54,6 @@ export default function AdminLogin({ onLoginSuccess }) {
 const styles = StyleSheet.create({
   container: { padding: 16 },
   heading: { fontSize: 20, marginBottom: 12 },
-  input: { borderWidth: 1, borderColor: '#ccc', padding: 8, marginBottom: 12 },
+  input: { borderWidth: 1, borderColor: '#ccc', padding: 8, marginBottom: 12, width: '100%' },
   message: { marginTop: 12, color: 'red' },
 });
