@@ -39,6 +39,12 @@ export default function UploadDocument({ onUploaded }) {
     try {
       const fd = new FormData();
       fd.append('document', file);
+      const result = await postDocument(fd);
+    onUploaded(result);
+  } catch (err) {
+    setError(err.message || 'Upload failed');
+  } finally {
+    setLoading(false);
 
       // include token if available; postDocument should accept optional headers
       const token = getToken();
