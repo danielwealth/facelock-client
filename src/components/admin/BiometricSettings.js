@@ -1,4 +1,4 @@
-// client/src/components/BiometricSettings.tsx
+// client/src/components/admin/BiometricSettings.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
 import BiometricUnlock from './BiometricUnlock';
