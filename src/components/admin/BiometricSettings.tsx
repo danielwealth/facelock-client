@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
 import BiometricUnlock from './BiometricUnlock';
-import VerificationDashboard from '../VerificationDashboard';
+import VerificationDashboard from '../user/VerificationDashboard';
 
 export default function BiometricSettings() {
   return (
