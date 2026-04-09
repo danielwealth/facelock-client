@@ -1,7 +1,7 @@
 // client/src/components/SessionTimeoutModal.jsx
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
-import auth from '../services/auth';
+import auth from '../../services/auth';
 
 export default function SessionTimeoutModal({ visible, remainingMs, onClose }) {
   if (!visible) return null;
