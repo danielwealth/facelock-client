@@ -35,5 +35,16 @@ export async function getHistory() {
   const res = await api.get('/verify/history', { retries: 1 });
   return res.data;
 }
+  export async function getStatus(jobId) {
+  const res = await api.get(`/verify/status/${jobId}`, { retries: 1 });
+  return res.data;
+}
+
+export async function postVerifyDocument(formData, opts = {}) {
+  const token = getToken();
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+  const res = await api.postForm('/verify-identity', formData, { authHeaders, retries: 1 });
+  return res.data;
+}
 
 export { postDocument, getStatus, getHistory };
