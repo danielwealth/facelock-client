@@ -1,4 +1,4 @@
-// client/src/components/RegisterForm.js
+// client/src/components/user/RegisterForm.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
