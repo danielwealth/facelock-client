@@ -1,7 +1,7 @@
 // client/src/components/user/VerificationHistory.jsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
-import { getHistory } from '../../services/verify';
+import { getHistory } from '../services/verify';
 
 export default function VerificationHistory({ onOpenJob }) {
   const [history, setHistory] = useState([]);
