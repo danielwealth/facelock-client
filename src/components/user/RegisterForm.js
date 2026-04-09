@@ -1,24 +1,31 @@
 // client/src/components/user/RegisterForm.js
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, Pressable } from 'react-native-web';
+import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
+import { useNavigate } from 'react-router-dom';
 import { userRegister } from '../../services/auth';
 
-export default function RegisterForm({ setView }) {
+export default function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
     setMessage('');
+    if (!email || !password) {
+      setMessage('Please enter both email and password');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await userRegister(email.trim(), password);
       if (res && (res.success || res.user)) {
         setMessage('✅ Registered successfully');
-        setView('login');
+        navigate('/login');
       } else {
-        const err = res && res.error ? res.error : 'Registration failed';
+        const err = res && (res.error || res.message) ? (res.error || res.message) : 'Registration failed';
         setMessage(err);
       }
     } catch (err) {
@@ -31,14 +38,17 @@ export default function RegisterForm({ setView }) {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.heading}>Create an account</Text>
+
       <TextInput
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        style={styles.input}
         autoCapitalize="none"
-        autoComplete="email"
+        keyboardType="email-address"
+        style={styles.input}
       />
+
       <TextInput
         placeholder="Password"
         secureTextEntry
@@ -47,9 +57,9 @@ export default function RegisterForm({ setView }) {
         style={styles.input}
       />
 
-      <Pressable style={styles.button} onPress={handleRegister} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? 'Registering...' : 'Register'}</Text>
-      </Pressable>
+      <div style={{ marginTop: 8 }}>
+        <Button title={loading ? 'Registering...' : 'Register'} onPress={handleRegister} disabled={loading} />
+      </div>
 
       {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
@@ -58,19 +68,7 @@ export default function RegisterForm({ setView }) {
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    marginBottom: 12,
-    borderRadius: 4,
-  },
-  button: {
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    borderRadius: 4,
-    alignItems: 'center',
-  },
-  buttonText: { color: '#fff', fontWeight: 'bold' },
+  heading: { fontSize: 20, marginBottom: 12 },
+  input: { borderWidth: 1, borderColor: '#ccc', padding: 8, marginBottom: 12, width: '100%' },
   message: { marginTop: 12 },
 });
