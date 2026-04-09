@@ -1,23 +1,12 @@
 // client/src/services/api.js
+import auth from './auth';
+
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
-/**
- * Normalize fetch responses into { ok, status, data, error }
- */
 async function parseResponse(resp) {
   const status = resp.status;
   let data = null;
-  try {
-    data = await resp.json();
-  } catch {
-    // non-json body
-    try {
-      data = await resp.text();
-    } catch {
-      data = null;
-    }
-  }
-
+  try { data = await resp.json(); } catch { data = null; }
   if (!resp.ok) {
     const message = (data && (data.error || data.message)) || resp.statusText || 'Request failed';
     const err = new Error(message);
@@ -25,84 +14,56 @@ async function parseResponse(resp) {
     err.payload = data;
     throw err;
   }
-
-  return { ok: true, status, data };
+  return data;
 }
 
-/**
- * Simple timeout wrapper for fetch
- */
-function fetchWithTimeout(url, opts = {}, timeout = 15000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  const merged = { ...opts, signal: controller.signal };
-  return fetch(url, merged).finally(() => clearTimeout(id));
-}
-
-/**
- * Build headers merging JSON defaults and optional auth headers
- */
-function buildHeaders(headers = {}, json = true, authHeaders = {}) {
-  const base = json ? { 'Content-Type': 'application/json' } : {};
-  return { ...base, ...authHeaders, ...headers };
-}
-
-/**
- * Generic request helper with optional retries for idempotent methods
- */
-async function request(path, { method = 'GET', headers = {}, body = null, json = true, credentials = 'include', timeout = 15000, retries = 0, authHeaders = {} } = {}) {
+async function request(path, opts = {}, retryOn401 = true) {
   const url = path.startsWith('http') ? path : `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
-  const opts = {
-    method,
-    headers: buildHeaders(headers, json, authHeaders),
-    credentials,
+  const token = auth.getToken();
+  const headers = { ...(opts.headers || {}) };
+  if (token && !opts.skipAuth) headers.Authorization = `Bearer ${token}`;
+
+  const fetchOpts = {
+    method: opts.method || 'GET',
+    headers,
+    credentials: opts.credentials || 'include',
+    body: opts.body || null,
   };
 
-  if (body !== null) {
-    opts.body = body;
-  }
-
-  let attempt = 0;
-  while (true) {
-    try {
-      const resp = await fetchWithTimeout(url, opts, timeout);
-      return await parseResponse(resp);
-    } catch (err) {
-      // AbortError or network error
-      attempt += 1;
-      const isAbort = err.name === 'AbortError';
-      const isNetwork = !err.status;
-      if ((attempt > retries) || (!isNetwork && !isAbort)) {
-        throw err;
+  try {
+    const resp = await fetch(url, fetchOpts);
+    return await parseResponse(resp);
+  } catch (err) {
+    // If 401 and retry allowed, attempt refresh once then retry original request
+    if (err.status === 401 && retryOn401) {
+      try {
+        await auth.refreshToken();
+        const newToken = auth.getToken();
+        if (newToken) {
+          fetchOpts.headers = { ...(fetchOpts.headers || {}), Authorization: `Bearer ${newToken}` };
+        }
+        const retryResp = await fetch(url, fetchOpts);
+        return await parseResponse(retryResp);
+      } catch (refreshErr) {
+        // refresh failed -> force logout
+        await auth.logout();
+        throw refreshErr;
       }
-      // small backoff
-      await new Promise(r => setTimeout(r, 200 * attempt));
     }
+    throw err;
   }
 }
 
-/**
- * Convenience helpers
- */
-async function get(path, opts = {}) {
-  return request(path, { ...opts, method: 'GET' });
-}
-
-async function post(path, data, opts = {}) {
+export async function get(path, opts = {}) { return request(path, { ...opts, method: 'GET' }); }
+export async function post(path, data, opts = {}) {
   const body = opts.json === false ? data : JSON.stringify(data);
-  return request(path, { ...opts, method: 'POST', body, json: opts.json !== false });
+  const headers = opts.json === false ? (opts.headers || {}) : { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  return request(path, { ...opts, method: 'POST', body, headers });
+}
+export async function postForm(path, formData, opts = {}) {
+  // do not set Content-Type for FormData
+  const headers = opts.headers || {};
+  return request(path, { ...opts, method: 'POST', body: formData, headers, skipJsonParse: false });
 }
 
-async function postForm(path, formData, opts = {}) {
-  // For FormData, do not set Content-Type; browser will set boundary
-  const authHeaders = opts.authHeaders || {};
-  return request(path, { ...opts, method: 'POST', body: formData, json: false, headers: opts.headers || {}, authHeaders });
-}
-
-export default {
-  request,
-  get,
-  post,
-  postForm,
-  API_BASE,
-};
+export default { get, post, postForm, API_BASE };
