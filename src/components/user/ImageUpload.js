@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
 import { getFaceDescriptor, areModelsReady } from '../../faceApiHelpers';
-import { postDocumentWithDescriptor } from '../services/verify';
+import { postDocumentWithDescriptor } from '../../services/verify';
 import { getToken } from '../services/auth';
 
 export default function ImageUpload({ setView }) {
