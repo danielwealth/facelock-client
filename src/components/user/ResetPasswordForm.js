@@ -1,4 +1,4 @@
-// client/src/components/ResetPasswordForm.js
+// client/src/components/user/ResetPasswordForm.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 
