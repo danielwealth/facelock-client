@@ -1,7 +1,7 @@
 // client/src/components/user/ResetPassword.jsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native-web';
-import { getToken } from '../services/auth';
+import { getToken } from '../../services/auth';
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
