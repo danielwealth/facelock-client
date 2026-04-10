@@ -1,8 +1,9 @@
 // client/src/components/user/UserDashboard.js
+{ "compilerOptions": { "baseUrl": "src" } }
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
 import LogoutButton from '../LogoutButton';
-import { getToken } from '../../services/auth';
+import { getToken } from 'services/auth';
 
 export default function UserDashboard({ setView }) {
   const [userEmail, setUserEmail] = useState(null);
