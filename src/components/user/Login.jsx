@@ -1,7 +1,9 @@
 // client/src/components/user/Login.jsx
+{ "compilerOptions": { "baseUrl": "src" } }
+
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
-import { adminLogin } from '../../services/auth'; // reuse adminLogin or create userLogin
+import { adminLogin } from 'services/auth'; // reuse adminLogin or create userLogin
 
 export default function UserLogin({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
