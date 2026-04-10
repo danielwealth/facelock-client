@@ -1,8 +1,11 @@
 // client/src/components/user/SignUp.jsx
+{ "compilerOptions": { "baseUrl": "src" } }
+
+
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
-import { userRegister } from '../../services/auth';
+import { userRegister } from 'services/auth';
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
