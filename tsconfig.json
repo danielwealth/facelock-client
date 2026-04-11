@@ -15,5 +15,10 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
+  {
+  "compilerOptions": {
+    "baseUrl": "src"
+  },
   "include": ["src"]
 }
+  
