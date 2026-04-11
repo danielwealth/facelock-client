@@ -1,5 +1,4 @@
 // client/src/components/user/ImageViewer.js
-{ "compilerOptions": { "baseUrl": "src" } }
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
