@@ -1,8 +1,10 @@
 // client/src/components/user/VerifyForm.jsx
+{ "compilerOptions": { "baseUrl": "src" } }
+
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 import { postVerifyDocument } from '../../services/verify';
-import { getToken } from '../../services/auth';
+import { getToken } from 'services/auth';
 
 export default function VerifyForm({ token: propToken }) {
   const [file, setFile] = useState(null);
