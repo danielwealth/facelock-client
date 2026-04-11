@@ -1,5 +1,4 @@
 // client/src/components/user/ResetPassword.jsx
-{ "compilerOptions": { "baseUrl": "src" } }
 
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native-web';
