@@ -1,7 +1,9 @@
 // client/src/components/admin/LoginForm.js
+{ "compilerOptions": { "baseUrl": "src" } }
+
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
-import { adminLogin } from '../../services/auth';
+import { adminLogin } from 'services/auth';
 
 export default function AdminLogin({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
