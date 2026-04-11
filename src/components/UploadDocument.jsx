@@ -1,22 +1,35 @@
 // client/src/components/user/UploadDocument.jsx
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
-import { postDocument } from '../services/verify';
-import { getToken } from 'services/auth';
+import { postDocument } from '../../services/verify';
+import { getToken } from '../../services/auth';
 
 export default function UploadDocument({ onUploaded }) {
   const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+
+  useEffect(() => {
+    return () => {
+      // cleanup object URL when component unmounts or preview changes
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleFileChange = (e) => {
-    const f = e.target.files && e.target.files[0];
+    const f = e?.target?.files?.[0] || null;
     setError(null);
-    setFile(f || null);
+    setFile(f);
 
-    if (f && f.type.startsWith('image/')) {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+
+    if (f && f.type && f.type.startsWith('image/')) {
       try {
         const url = URL.createObjectURL(f);
         setPreviewUrl(url);
@@ -40,20 +53,14 @@ export default function UploadDocument({ onUploaded }) {
     try {
       const fd = new FormData();
       fd.append('document', file);
-      const result = await postDocument(fd);
-    onUploaded(result);
-  } catch (err) {
-    setError(err.message || 'Upload failed');
-  } finally {
-    setLoading(false);
 
-      // include token if available; postDocument should accept optional headers
+      // include token if available; postDocument should accept optional opts
       const token = getToken();
       const opts = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
       const result = await postDocument(fd, opts);
 
-      // expected result: { jobId, status, ... }
+      // expected result: { jobId, status, ... } or error field
       if (!result || result.error) {
         throw new Error(result?.error || 'Upload failed');
       }
@@ -77,7 +84,11 @@ export default function UploadDocument({ onUploaded }) {
 
       {previewUrl && (
         <div style={{ marginTop: 8 }}>
-          <img src={previewUrl} alt="preview" style={{ maxWidth: 240, borderRadius: 6 }} />
+          <img
+            src={previewUrl}
+            alt="preview"
+            style={{ maxWidth: 240, borderRadius: 6 }}
+          />
         </div>
       )}
 
