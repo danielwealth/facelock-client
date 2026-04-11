@@ -1,5 +1,4 @@
 // client/src/components/SessionTimeoutModal.jsx
-{ "compilerOptions": { "baseUrl": "src" } }
 
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
