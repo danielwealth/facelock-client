@@ -1,5 +1,4 @@
 // client/src/components/user/RegisterForm.js
-{ "compilerOptions": { "baseUrl": "src" } }
 
 
 import React, { useState } from 'react';
