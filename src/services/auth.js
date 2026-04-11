@@ -104,3 +104,22 @@ export default {
   setToken,
   setAuthChangeHandler,
 };
+// client/src/services/auth.js
+
+// alias named export
+export async function adminLogin(email, password) {
+  return userLogin(email, password);
+}
+
+// ...existing exports...
+
+export default {
+  userLogin,
+  adminLogin,          // add here
+  refreshToken,
+  logout,
+  getToken,
+  setToken,
+  setAuthChangeHandler,
+};
+
