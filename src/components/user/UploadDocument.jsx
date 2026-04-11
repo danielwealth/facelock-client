@@ -28,24 +28,28 @@ export default function UploadDocument({ onUploaded }) {
     }
   };
 
-  const handleUpload = async () => {
-    if (!file) {
-      setError('Please choose a file to upload');
-      return;
-    }
-
+  async function handleUpload() {
+  try {
     setLoading(true);
     setError(null);
 
-    try {
-      const fd = new FormData();
-      fd.append('document', file);
-      const result = await postDocument(fd);
-    onUploaded(result);
+    // ... your upload logic, e.g. build FormData and fetch
+    const formData = new FormData();
+    formData.append('document', selectedFile);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    const result = await response.json();
+
+    if (typeof onUploaded === 'function') onUploaded(result);
   } catch (err) {
-    setError(err.message || 'Upload failed');
+    setError(err?.message || 'Upload failed');
   } finally {
     setLoading(false);
+  }
+}
 
       // include token if available; postDocument should accept optional headers
       const token = getToken();
