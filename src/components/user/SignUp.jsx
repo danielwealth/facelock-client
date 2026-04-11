@@ -1,5 +1,4 @@
 // client/src/components/user/SignUp.jsx
-{ "compilerOptions": { "baseUrl": "src" } }
 
 
 import React, { useState } from 'react';
