@@ -1,8 +1,10 @@
 // client/src/components/user/UploadDocument.jsx
+{ "compilerOptions": { "baseUrl": "src" } }
+
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
 import { postDocument } from '../services/verify';
-import { getToken } from '../../services/auth';
+import { getToken } from 'services/auth';
 
 export default function UploadDocument({ onUploaded }) {
   const [file, setFile] = useState(null);
