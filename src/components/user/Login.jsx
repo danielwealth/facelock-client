@@ -1,5 +1,4 @@
 // client/src/components/user/Login.jsx
-{ "compilerOptions": { "baseUrl": "src" } }
 
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
