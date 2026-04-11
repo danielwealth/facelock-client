@@ -1,4 +1,4 @@
-// client/src/components/user/UploadDocument.jsx
+// src/components/user/UploadDocument.jsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
 import { postDocument } from '../../services/verify';
@@ -12,9 +12,8 @@ export default function UploadDocument({ onUploaded }) {
 
   useEffect(() => {
     return () => {
-      // cleanup object URL when component unmounts or preview changes
       if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
+        try { URL.revokeObjectURL(previewUrl); } catch {}
       }
     };
   }, [previewUrl]);
@@ -25,7 +24,7 @@ export default function UploadDocument({ onUploaded }) {
     setFile(f);
 
     if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+      try { URL.revokeObjectURL(previewUrl); } catch {}
       setPreviewUrl(null);
     }
 
@@ -60,7 +59,7 @@ export default function UploadDocument({ onUploaded }) {
 
       const result = await postDocument(fd, opts);
 
-      // expected result: { jobId, status, ... } or error field
+      // expected result: { jobId, status, ... } or { error: '...' }
       if (!result || result.error) {
         throw new Error(result?.error || 'Upload failed');
       }
