@@ -1,5 +1,4 @@
 // client/src/components/LogoutButton.js
-{ "compilerOptions": { "baseUrl": "src" } }
 
 import React, { useState } from 'react';
 import { View, Button, Text, StyleSheet } from 'react-native-web';
