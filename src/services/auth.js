@@ -113,6 +113,7 @@ export async function userRegister(email, password) {
 
 export default {
   userLogin,
+  userRegister,
   adminLogin,          // add here
   refreshToken,
   logout,
