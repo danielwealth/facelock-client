@@ -1,5 +1,6 @@
 // client/src/components/admin/BiometricSettings.tsx
-import React from 'react';
+import * as React from 'react';
+
 import { View, Text, StyleSheet } from 'react-native-web';
 import BiometricUnlock from './BiometricUnlock';
 import VerificationDashboard from '../user/VerificationDashboard';
