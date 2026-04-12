@@ -1,50 +1,80 @@
 // client/src/services/verify.js
-import api from './api';
 import { getToken } from './auth';
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
-async function postDocument(formData, token) {
+async function handleResponse(res) {
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(payload.error || payload.message || 'Request failed');
+    err.status = res.status;
+    err.payload = payload;
+    throw err;
+  }
+  return payload;
+}
+
+/**
+ * Upload a document for verification.
+ * formData: FormData instance containing the file under key 'document'
+ * opts: optional object { token: '...', headers: { ... } }
+ */
+export async function postDocument(formData, opts = {}) {
+  const token = opts.token || getToken();
+  const headers = opts.headers || {};
   const res = await fetch(`${API_BASE}/verify/document`, {
     method: 'POST',
-    headers: to
-
-async function getStatus(jobId, token) {
-  const res = await fetch(`${API_BASE}/verify/status/${jobId}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    credentials: 'include',
+    headers: token ? { ...headers, Authorization: `Bearer ${token}` } : headers,
+    body: formData,
   });
-  if (!res.ok) throw new Error(`Status fetch failed: ${res.statusText}`);
-  return res.json();
+  return handleResponse(res);
 }
 
-async function getHistory(token) {
-  const res = await fetch(`${API_BASE}/verify/history`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
-  if (!res.ok) throw new Error(`History fetch failed: ${res.statusText}`);
-  return res.json();
-}
-  export async function postDocument(formData, opts = {}) {
-  const token = getToken();
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-  const res = await api.postForm('/verify/document', formData, { authHeaders, retries: 1 });
-  return res.data;
-}
-
-export async function getHistory() {
-  const res = await api.get('/verify/history', { retries: 1 });
-  return res.data;
-}
-  export async function getStatus(jobId) {
-  const res = await api.get(`/verify/status/${jobId}`, { retries: 1 });
-  return res.data;
-}
-
+/**
+ * Alternative endpoint used elsewhere: postVerifyDocument
+ */
 export async function postVerifyDocument(formData, opts = {}) {
-  const token = getToken();
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-  const res = await api.postForm('/verify-identity', formData, { authHeaders, retries: 1 });
-  return res.data;
+  const token = opts.token || getToken();
+  const headers = opts.headers || {};
+  const res = await fetch(`${API_BASE}/verify-identity`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: token ? { ...headers, Authorization: `Bearer ${token}` } : headers,
+    body: formData,
+  });
+  return handleResponse(res);
 }
 
-export { postDocument, getStatus, getHistory };
+/**
+ * Get verification job status.
+ */
+export async function getStatus(jobId, opts = {}) {
+  const token = opts.token || getToken();
+  const res = await fetch(`${API_BASE}/verify/status/${encodeURIComponent(jobId)}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  return handleResponse(res);
+}
+
+/**
+ * Get verification history for the current user.
+ */
+export async function getHistory(opts = {}) {
+  const token = opts.token || getToken();
+  const res = await fetch(`${API_BASE}/verify/history`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  return handleResponse(res);
+}
+
+export default {
+  postDocument,
+  postVerifyDocument,
+  getStatus,
+  getHistory,
+};
