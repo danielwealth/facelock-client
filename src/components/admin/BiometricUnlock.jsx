@@ -1,4 +1,4 @@
-// client/src/components/BiometricUnlock.tsx
+// client/src/components/BiometricUnlock.jsx
 import React, { useState } from 'react';
 import { View, Text, Button, FlatList, StyleSheet } from 'react-native-web';
 import { startAuthentication } from '@simplewebauthn/browser';
@@ -6,11 +6,11 @@ import { startAuthentication } from '@simplewebauthn/browser';
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
 export default function BiometricUnlock() {
-  const [images, setImages] = useState<string[]>([]);
-  const [message, setMessage] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [images, setImages] = useState([]);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  async function fetchJson(url: string, opts: RequestInit = {}) {
+  async function fetchJson(url, opts = {}) {
     const res = await fetch(url, opts);
     if (!res.ok) {
       const text = await res.text().catch(() => res.statusText);
