@@ -96,14 +96,6 @@ export async function logout() {
 export function getToken() { return getTokenLocal(); }
 export function setToken(token) { setTokenLocal(token); scheduleRefresh(token); }
 
-export default {
-  userLogin,
-  refreshToken,
-  logout,
-  getToken,
-  setToken,
-  setAuthChangeHandler,
-};
 // client/src/services/auth.js
 
 // alias named export
