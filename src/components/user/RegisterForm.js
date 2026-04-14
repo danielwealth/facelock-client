@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
-import { userRegister } from '../../services/auth'; // relative path
+import { userRegister } from 'services/auth'; // relative path
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
