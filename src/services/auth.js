@@ -2,7 +2,7 @@
 import api from './api';
 import { getExpiry } from '../utils/jwt';
 
-const API_BASE = process.env.REACT_APP_API_URL || '';
+const API_BASE = process.env.REACT_APP_API_URI || '';
 const REFRESH_BUFFER_MS = 60 * 1000; // refresh 60s before expiry
 
 function setTokenLocal(token) {
@@ -106,7 +106,7 @@ export async function adminLogin(email, password) {
 // services/auth.js
 export async function userRegister(email, password) {
   try {
-    const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/auth/register`, {
+    const res = await fetch(`${process.env.REACT_APP_API_URI || ''}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
