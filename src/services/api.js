@@ -1,7 +1,7 @@
 // client/src/services/api.js
 import auth from './auth';
 
-const API_BASE = process.env.REACT_APP_API_URL || '';
+const API_BASE = process.env.REACT_APP_API_URI || '';
 
 async function parseResponse(resp) {
   const status = resp.status;
