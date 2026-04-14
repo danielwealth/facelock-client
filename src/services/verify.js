@@ -1,7 +1,7 @@
 // client/src/services/verify.js
 import { getToken } from './auth';
 
-const API_BASE = process.env.REACT_APP_API_URL || '';
+const API_BASE = process.env.REACT_APP_API_URI || '';
 
 async function handleResponse(res) {
   const payload = await res.json().catch(() => ({}));
