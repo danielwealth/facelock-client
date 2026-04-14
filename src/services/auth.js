@@ -105,7 +105,7 @@ export async function adminLogin(email, password) {
 // near other exports in client/src/services/auth.js
 export async function userRegister(email, password) {
   // If registration is same as login, call userLogin or implement registration logic here.
-  return userLogin(email, password);
+  return userRegister(email, password);
 }
 
 
