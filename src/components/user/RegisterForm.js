@@ -9,7 +9,7 @@ export default function RegisterForm() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  
 
   const handleRegister = async () => {
     setMessage('');
