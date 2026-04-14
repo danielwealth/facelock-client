@@ -1,19 +1,24 @@
 // client/src/components/user/SignUp.jsx
-
-
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
-import { userRegister } from 'services/auth';
+import { userRegister } from '../../services/auth'; // relative import
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+
+  let navigate;
+  try {
+    navigate = useNavigate();
+  } catch (e) {
+    navigate = null;
+  }
 
   const handleSignUp = async () => {
+    if (loading) return;
     setStatus('');
     if (!email || !password) {
       setStatus('Please enter both email and password');
@@ -21,15 +26,20 @@ export default function SignUp() {
     }
 
     setLoading(true);
+    console.trace('handleSignUp invoked');
     try {
       const res = await userRegister(email.trim(), password);
+      console.log('userRegister response', res);
+
       if (res && (res.success || res.user)) {
         setStatus('✅ Signup successful');
-        navigate('/login');
-      } else {
-        const err = res && (res.error || res.message) ? (res.error || res.message) : 'Signup failed';
-        setStatus(err);
+        if (navigate) navigate('/login');
+        return;
       }
+
+      const err = res && (res.error || res.message) ? (res.error || res.message) : 'Signup failed';
+      const lower = String(err).toLowerCase();
+      setStatus(lower.includes('login') ? 'Signup failed' : String(err));
     } catch (err) {
       console.error('Signup error', err);
       setStatus(err?.message || 'Error during signup');
@@ -43,12 +53,12 @@ export default function SignUp() {
       <Text style={styles.heading}>Sign Up</Text>
 
       <TextInput
-        type="email"
         placeholder="Email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChangeText={setEmail}
         style={styles.input}
         autoCapitalize="none"
+        keyboardType="email-address"
         autoComplete="email"
       />
 
@@ -56,13 +66,13 @@ export default function SignUp() {
         placeholder="Password"
         secureTextEntry
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChangeText={setPassword}
         style={styles.input}
       />
 
-      <div style={{ marginTop: 8 }}>
+      <View style={{ marginTop: 8 }}>
         <Button title={loading ? 'Registering...' : 'Register'} onPress={handleSignUp} disabled={loading} />
-      </div>
+      </View>
 
       {status ? <Text style={styles.status}>{status}</Text> : null}
     </View>
