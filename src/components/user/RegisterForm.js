@@ -1,10 +1,8 @@
 // client/src/components/user/RegisterForm.js
-
-
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
-import { userRegister } from 'services/auth';
+import { userRegister } from '../../services/auth'; // relative path
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
@@ -45,7 +43,7 @@ export default function RegisterForm() {
       <TextInput
         placeholder="Email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChangeText={setEmail}            // use onChangeText, not onChange(e)
         autoCapitalize="none"
         keyboardType="email-address"
         style={styles.input}
@@ -55,13 +53,13 @@ export default function RegisterForm() {
         placeholder="Password"
         secureTextEntry
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChangeText={setPassword}
         style={styles.input}
       />
 
-      <div style={{ marginTop: 8 }}>
+      <View style={{ marginTop: 8 }}>
         <Button title={loading ? 'Registering...' : 'Register'} onPress={handleRegister} disabled={loading} />
-      </div>
+      </View>
 
       {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
