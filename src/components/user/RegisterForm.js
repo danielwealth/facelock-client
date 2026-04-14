@@ -2,16 +2,23 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
-import { userRegister } from 'services/auth'; // ensure correct relative path
+import { userRegister } from '../../services/auth'; // relative import
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
+  let navigate;
+  try {
+    navigate = useNavigate();
+  } catch (e) {
+    navigate = null;
+  }
 
   const handleRegister = async () => {
+    if (loading) return;
     setMessage('');
     if (!email || !password) {
       setMessage('Please enter both email and password');
@@ -19,15 +26,20 @@ export default function RegisterForm() {
     }
 
     setLoading(true);
+    console.trace('handleRegister invoked');
     try {
       const res = await userRegister(email.trim(), password);
+      console.log('userRegister response', res);
+
       if (res && (res.success || res.user)) {
         setMessage('✅ Registered successfully');
-        navigate('/login');
-      } else {
-        const err = res && (res.error || res.message) ? (res.error || res.message) : 'Registration failed';
-        setMessage(err);
+        if (navigate) navigate('/login');
+        return;
       }
+
+      const err = res && (res.error || res.message) ? (res.error || res.message) : 'Registration failed';
+      const lower = String(err).toLowerCase();
+      setMessage(lower.includes('login') ? 'Registration failed' : String(err));
     } catch (err) {
       console.error('Registration error', err);
       setMessage(err?.message || 'Error registering');
