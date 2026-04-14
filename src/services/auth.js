@@ -103,10 +103,30 @@ export async function adminLogin(email, password) {
   return userLogin(email, password);
 }
 // near other exports in client/src/services/auth.js
+// services/auth.js
 export async function userRegister(email, password) {
-  // If registration is same as login, call userLogin or implement registration logic here.
-  return userRegister(email, password);
+  try {
+    const res = await fetch(`${process.env.REACT_APP_API_URL || ''}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      credentials: 'include',
+    });
+
+    const text = await res.text().catch(() => null);
+    let payload;
+    try { payload = text ? JSON.parse(text) : null; } catch { payload = { message: text }; }
+
+    if (!res.ok) {
+      return { success: false, error: payload?.error || payload?.message || `HTTP ${res.status}` };
+    }
+    return { success: true, user: payload?.user || payload };
+  } catch (err) {
+    console.error('userRegister error', err);
+    return { success: false, error: err?.message || 'Network error' };
+  }
 }
+
 
 
 // ...existing exports...
