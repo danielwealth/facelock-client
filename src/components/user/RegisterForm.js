@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
 import { useNavigate } from 'react-router-dom';
-import { userRegister } from 'services/auth'; // relative path
+import { userRegister } from 'services/auth'; // ensure correct relative path
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
@@ -43,7 +43,7 @@ export default function RegisterForm() {
       <TextInput
         placeholder="Email"
         value={email}
-        onChangeText={setEmail}            // use onChangeText, not onChange(e)
+        onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
         style={styles.input}
