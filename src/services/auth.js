@@ -2,7 +2,7 @@
 import api from './api';
 import { getExpiry } from '../utils/jwt';
 
-const API_BASE = process.env.REACT_APP_API_URI || '';
+const API_BASE = process.env.REACT_APP_API_URI || process.env.REACT_APP_API_URL || '';
 const REFRESH_BUFFER_MS = 60 * 1000; // refresh 60s before expiry
 
 function setTokenLocal(token) {
@@ -33,7 +33,6 @@ function scheduleRefresh(token) {
     try {
       await refreshToken();
     } catch {
-      // refresh failed; let request interceptor or UI handle logout
       if (typeof onAuthChange === 'function') onAuthChange({ loggedOut: true });
     }
   }, msUntilRefresh);
@@ -42,7 +41,8 @@ function scheduleRefresh(token) {
 export function setAuthChangeHandler(fn) { onAuthChange = fn; }
 
 export async function userLogin(email, password) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const url = API_BASE ? `${API_BASE.replace(/\/$/, '')}/auth/login` : '/auth/login';
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -63,8 +63,8 @@ export async function userLogin(email, password) {
 }
 
 export async function refreshToken() {
-  // call backend refresh endpoint
-  const res = await fetch(`${API_BASE}/auth/refresh`, {
+  const url = API_BASE ? `${API_BASE.replace(/\/$/, '')}/auth/refresh` : '/auth/refresh';
+  const res = await fetch(url, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
@@ -85,7 +85,8 @@ export async function refreshToken() {
 
 export async function logout() {
   try {
-    await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' }).catch(() => {});
+    const url = API_BASE ? `${API_BASE.replace(/\/$/, '')}/auth/logout` : '/auth/logout';
+    await fetch(url, { method: 'POST', credentials: 'include' }).catch(() => {});
   } finally {
     clearTokenLocal();
     if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
@@ -96,49 +97,60 @@ export async function logout() {
 export function getToken() { return getTokenLocal(); }
 export function setToken(token) { setTokenLocal(token); scheduleRefresh(token); }
 
-// client/src/services/auth.js
-
 // alias named export
 export async function adminLogin(email, password) {
   return userLogin(email, password);
 }
-// near other exports in client/src/services/auth.js
-// services/auth.js
+
+// registration
 export async function userRegister(email, password) {
+  if (!API_BASE) {
+    console.error('userRegister: API_BASE not configured (REACT_APP_API_URI or REACT_APP_API_URL)');
+    return { success: false, error: 'API base URL not configured' };
+  }
+
+  const url = `${API_BASE.replace(/\/$/, '')}/auth/register`;
+  console.log('userRegister posting to', url);
+
   try {
-    const res = await fetch(`${process.env.REACT_APP_API_URI || ''}/auth/register`, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
       credentials: 'include',
     });
 
-    const text = await res.text().catch(() => null);
-    let payload;
-    try { payload = text ? JSON.parse(text) : null; } catch { payload = { message: text }; }
-
+    const contentType = res.headers.get('content-type') || '';
     if (!res.ok) {
-      return { success: false, error: payload?.error || payload?.message || `HTTP ${res.status}` };
+      if (contentType.includes('application/json')) {
+        const payload = await res.json().catch(() => null);
+        return { success: false, error: payload?.error || payload?.message || `HTTP ${res.status}` };
+      }
+      const text = await res.text().catch(() => null);
+      console.error('userRegister non-json error response:', text?.slice?.(0, 300));
+      return { success: false, error: `Server returned ${res.status} ${res.statusText}` };
     }
-    return { success: true, user: payload?.user || payload };
+
+    if (contentType.includes('application/json')) {
+      const payload = await res.json().catch(() => null);
+      return { success: true, user: payload?.user || payload };
+    }
+
+    const text = await res.text().catch(() => null);
+    return { success: false, error: 'Unexpected server response' };
   } catch (err) {
-    console.error('userRegister error', err);
+    console.error('userRegister network error', err);
     return { success: false, error: err?.message || 'Network error' };
   }
 }
 
-
-
-// ...existing exports...
-
 export default {
   userLogin,
   userRegister,
-  adminLogin,          // add here
+  adminLogin,
   refreshToken,
   logout,
   getToken,
   setToken,
   setAuthChangeHandler,
 };
-
