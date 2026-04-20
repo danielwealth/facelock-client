@@ -12,6 +12,7 @@ export default function VerificationDashboard({ setView, isAdmin }) {
     <View style={styles.container}>
       <Text style={styles.heading}>Document Verification</Text>
 
+      {/* Step 1: Upload ID + Selfie */}
       <UploadDocument
         onUploaded={(job) => {
           // job expected shape: { jobId, status, ... }
@@ -19,16 +20,24 @@ export default function VerificationDashboard({ setView, isAdmin }) {
         }}
       />
 
+      {/* Step 2: Show current job status if active */}
       {currentJob ? (
         <View style={styles.currentJob}>
-          <VerificationStatus job={currentJob} onClose={() => setCurrentJob(null)} />
+          <VerificationStatus
+            job={currentJob}
+            onClose={() => setCurrentJob(null)}
+          />
         </View>
       ) : (
-        <Text style={styles.hint}>No active verification job. Upload a document to start.</Text>
+        <Text style={styles.hint}>
+          No active verification job. Upload a document to start.
+        </Text>
       )}
 
+      {/* Step 3: Show history of past jobs */}
       <VerificationHistory onOpenJob={(job) => setCurrentJob(job)} />
 
+      {/* Navigation back */}
       <View style={styles.footer}>
         <Button
           title="Back"
