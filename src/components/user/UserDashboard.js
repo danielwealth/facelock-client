@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
 import LogoutButton from '../LogoutButton';
-import { getToken } from 'services/auth';
+import { getToken } from '../../services/auth';
 
 export default function UserDashboard({ setView }) {
   const [userEmail, setUserEmail] = useState(null);
@@ -15,10 +15,17 @@ export default function UserDashboard({ setView }) {
       const parts = token.split('.');
       if (parts.length < 2) return;
       const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-      setUserEmail(payload?.email || payload?.sub || null);
+
+      // defer state update to avoid synchronous setState in effect
+      const t = setTimeout(() => {
+        setUserEmail(payload?.email || payload?.sub || null);
+      }, 0);
+
+      return () => clearTimeout(t);
     } catch (err) {
       // ignore decode errors — token may not be a JWT or may not contain email
-      setUserEmail(null);
+      const t = setTimeout(() => setUserEmail(null), 0);
+      return () => clearTimeout(t);
     }
   }, []);
 
@@ -27,7 +34,9 @@ export default function UserDashboard({ setView }) {
       <Text style={styles.heading}>User Dashboard</Text>
 
       {userEmail ? (
-        <Text style={styles.welcome}>Signed in as <Text style={{ fontWeight: '700' }}>{userEmail}</Text></Text>
+        <Text style={styles.welcome}>
+          Signed in as <Text style={{ fontWeight: '700' }}>{userEmail}</Text>
+        </Text>
       ) : (
         <Text style={styles.message}>
           Welcome! You can upload images, view history, and manage your account here.
