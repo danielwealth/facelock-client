@@ -100,10 +100,10 @@ export default function Dashboard({ setRoute }) {
     setLoading(false);
   }, [fetchStats, fetchUsers, fetchMatches, page, query]);
 
-  useEffect(() => {
-    loadAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  useEffect(() => {
+  loadAll();
+}, [loadAll]);
 
   // Refresh action
   const handleRefresh = async () => {
