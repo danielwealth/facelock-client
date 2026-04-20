@@ -10,12 +10,8 @@ export default function RegisterForm() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  let navigate;
-  try {
-    navigate = useNavigate();
-  } catch (e) {
-    navigate = null;
-  }
+  // ✅ Always call hooks at the top level
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
     if (loading) return;
@@ -26,14 +22,13 @@ export default function RegisterForm() {
     }
 
     setLoading(true);
-    console.trace('handleRegister invoked');
     try {
       const res = await userRegister(email.trim(), password);
-      console.log('userRegister response', res);
 
       if (res && (res.success || res.user)) {
         setMessage('✅ Registered successfully');
-        if (navigate) navigate('/login');
+        // navigate safely after success
+        navigate('/login');
         return;
       }
 
