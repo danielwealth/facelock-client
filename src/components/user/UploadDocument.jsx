@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
 import { postDocument } from '../../services/verify';
-import { getToken } from 'services/auth';
+import { getToken } from '../../services/auth';
 
 export default function UploadDocument({ onUploaded }) {
   const [file, setFile] = useState(null);
@@ -10,10 +10,15 @@ export default function UploadDocument({ onUploaded }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // cleanup preview URL when component unmounts or preview changes
   useEffect(() => {
     return () => {
       if (previewUrl) {
-        try { URL.revokeObjectURL(previewUrl); } catch {}
+        try {
+          URL.revokeObjectURL(previewUrl);
+        } catch (err) {
+          console.warn('Failed to revoke object URL', err);
+        }
       }
     };
   }, [previewUrl]);
@@ -24,7 +29,11 @@ export default function UploadDocument({ onUploaded }) {
     setFile(f);
 
     if (previewUrl) {
-      try { URL.revokeObjectURL(previewUrl); } catch {}
+      try {
+        URL.revokeObjectURL(previewUrl);
+      } catch (err) {
+        console.warn('Failed to revoke old preview URL', err);
+      }
       setPreviewUrl(null);
     }
 
@@ -32,7 +41,8 @@ export default function UploadDocument({ onUploaded }) {
       try {
         const url = URL.createObjectURL(f);
         setPreviewUrl(url);
-      } catch {
+      } catch (err) {
+        console.error('Failed to create preview URL', err);
         setPreviewUrl(null);
       }
     } else {
@@ -62,7 +72,9 @@ export default function UploadDocument({ onUploaded }) {
         throw new Error(result?.error || 'Upload failed');
       }
 
-      if (typeof onUploaded === 'function') onUploaded(result);
+      if (typeof onUploaded === 'function') {
+        onUploaded(result);
+      }
     } catch (err) {
       setError(err?.message || 'Upload failed');
     } finally {
