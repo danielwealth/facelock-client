@@ -1,17 +1,13 @@
 // client/src/components/user/RegisterForm.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
-import { useNavigate } from 'react-router-dom';
 import { userRegister } from '../../services/auth'; // relative import
 
-export default function RegisterForm() {
+export default function RegisterForm({ setRoute }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // ✅ Always call hooks at the top level
-  const navigate = useNavigate();
 
   const handleRegister = async () => {
     if (loading) return;
@@ -27,8 +23,8 @@ export default function RegisterForm() {
 
       if (res && (res.success || res.user)) {
         setMessage('✅ Registered successfully');
-        // navigate safely after success
-        navigate('/login');
+        // use setRoute instead of navigate
+        setRoute('login');
         return;
       }
 
