@@ -1,7 +1,6 @@
 // client/src/App.js
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import RegisterForm from './components/user/RegisterForm'
 // other imports…
 
 import {
