@@ -6,15 +6,28 @@ const API_BASE = process.env.REACT_APP_API_URI || process.env.REACT_APP_API_URL 
 const REFRESH_BUFFER_MS = 60 * 1000; // refresh 60s before expiry
 
 function setTokenLocal(token) {
-  try { localStorage.setItem('token', token); } catch {}
+  try {
+    localStorage.setItem('token', token);
+  } catch (err) {
+    console.warn('Failed to set token in localStorage', err);
+  }
 }
 
 function getTokenLocal() {
-  try { return localStorage.getItem('token'); } catch { return null; }
+  try {
+    return localStorage.getItem('token');
+  } catch (err) {
+    console.warn('Failed to get token from localStorage', err);
+    return null;
+  }
 }
 
 function clearTokenLocal() {
-  try { localStorage.removeItem('token'); } catch {}
+  try {
+    localStorage.removeItem('token');
+  } catch (err) {
+    console.warn('Failed to clear token from localStorage', err);
+  }
 }
 
 let refreshTimer = null;
@@ -32,13 +45,16 @@ function scheduleRefresh(token) {
   refreshTimer = setTimeout(async () => {
     try {
       await refreshToken();
-    } catch {
+    } catch (err) {
+      console.error('Token refresh failed', err);
       if (typeof onAuthChange === 'function') onAuthChange({ loggedOut: true });
     }
   }, msUntilRefresh);
 }
 
-export function setAuthChangeHandler(fn) { onAuthChange = fn; }
+export function setAuthChangeHandler(fn) {
+  onAuthChange = fn;
+}
 
 export async function userLogin(email, password) {
   const url = API_BASE ? `${API_BASE.replace(/\/$/, '')}/auth/login` : '/auth/login';
@@ -86,16 +102,26 @@ export async function refreshToken() {
 export async function logout() {
   try {
     const url = API_BASE ? `${API_BASE.replace(/\/$/, '')}/auth/logout` : '/auth/logout';
-    await fetch(url, { method: 'POST', credentials: 'include' }).catch(() => {});
+    await fetch(url, { method: 'POST', credentials: 'include' }).catch((err) => {
+      console.warn('Logout request failed', err);
+    });
   } finally {
     clearTokenLocal();
-    if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
+    if (refreshTimer) {
+      clearTimeout(refreshTimer);
+      refreshTimer = null;
+    }
     if (typeof onAuthChange === 'function') onAuthChange({ loggedOut: true });
   }
 }
 
-export function getToken() { return getTokenLocal(); }
-export function setToken(token) { setTokenLocal(token); scheduleRefresh(token); }
+export function getToken() {
+  return getTokenLocal();
+}
+export function setToken(token) {
+  setTokenLocal(token);
+  scheduleRefresh(token);
+}
 
 // alias named export
 export async function adminLogin(email, password) {
@@ -137,6 +163,7 @@ export async function userRegister(email, password) {
     }
 
     const text = await res.text().catch(() => null);
+    console.warn('Unexpected server response', text);
     return { success: false, error: 'Unexpected server response' };
   } catch (err) {
     console.error('userRegister network error', err);
