@@ -105,10 +105,17 @@ export default function App() {
     }
   };
 
+  // Defer initial health check to avoid synchronous setState inside effect
   useEffect(() => {
-    checkHealth();
+    const t = setTimeout(() => {
+      checkHealth();
+    }, 0);
+
     const id = setInterval(checkHealth, 30_000);
-    return () => clearInterval(id);
+    return () => {
+      clearTimeout(t);
+      clearInterval(id);
+    };
   }, []);
 
   // Simple router mapping
@@ -146,7 +153,7 @@ export default function App() {
   return (
     <View style={styles.app}>
       <View style={styles.header}>
-        <Text style={styles.brand}>Ohidan's FacelockApp Portal</Text>
+        <Text style={styles.brand}>Ohidan&apos;s FacelockApp Portal</Text>
         <View style={styles.headerRight}>
           <Text style={styles.apiText}>{API_BASE ? `API: ${API_BASE}` : 'API not configured'}</Text>
           <TouchableOpacity style={styles.headerButton} onPress={checkHealth} disabled={checking}>
