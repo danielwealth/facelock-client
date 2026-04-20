@@ -4,20 +4,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginForm from './components/user/LoginForm';
 // other imports…
 
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/login" element={<LoginForm />} />
-        {/* other routes */}
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App;
-
 import {
   View,
   Text,
