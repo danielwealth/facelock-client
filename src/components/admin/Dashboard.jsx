@@ -65,20 +65,23 @@ export default function Dashboard({ setRoute }) {
     }
   }, []);
 
-  const fetchUsers = useCallback(async (pageNum = 1, q = '') => {
-    if (!API_BASE) return;
-    try {
-      const params = new URLSearchParams({ page: pageNum, pageSize, q });
-      const res = await fetch(`${API_BASE}/admin/users?${params.toString()}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      setUsers(json.users || []);
-      setTotalPages(Math.max(1, Math.ceil((json.total || 0) / pageSize)));
-    } catch (err) {
-      console.warn('fetchUsers error', err);
-      setError('Failed to load users');
-    }
-  }, [pageSize]);
+  const fetchUsers = useCallback(
+    async (pageNum = 1, q = '') => {
+      if (!API_BASE) return;
+      try {
+        const params = new URLSearchParams({ page: pageNum, pageSize, q });
+        const res = await fetch(`${API_BASE}/admin/users?${params.toString()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        setUsers(json.users || []);
+        setTotalPages(Math.max(1, Math.ceil((json.total || 0) / pageSize)));
+      } catch (err) {
+        console.warn('fetchUsers error', err);
+        setError('Failed to load users');
+      }
+    },
+    [pageSize]
+  );
 
   const fetchMatches = useCallback(async () => {
     if (!API_BASE) return;
@@ -100,10 +103,13 @@ export default function Dashboard({ setRoute }) {
     setLoading(false);
   }, [fetchStats, fetchUsers, fetchMatches, page, query]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Defer the initial load to avoid synchronous setState inside effect
   useEffect(() => {
-  loadAll();
-}, [loadAll]);
+    const t = setTimeout(() => {
+      loadAll();
+    }, 0);
+    return () => clearTimeout(t);
+  }, [loadAll]);
 
   // Refresh action
   const handleRefresh = async () => {
@@ -152,6 +158,18 @@ export default function Dashboard({ setRoute }) {
   // Pagination controls
   const prevPage = () => setPage((p) => Math.max(1, p - 1));
   const nextPage = () => setPage((p) => Math.min(totalPages, p + 1));
+
+  // Helper to render created date safely (avoid impure Date.now in render)
+  const formatCreated = (user) => {
+    if (!user) return 'Unknown';
+    const raw = user.createdAt || user.created;
+    if (!raw) return 'Unknown';
+    try {
+      return new Date(raw).toLocaleString();
+    } catch {
+      return 'Unknown';
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -258,7 +276,7 @@ export default function Dashboard({ setRoute }) {
                 <Text style={styles.modalText}>Email: {selectedUser.email}</Text>
                 <Text style={styles.modalText}>ID: {selectedUser._id || selectedUser.id}</Text>
                 <Text style={styles.modalText}>Role: {selectedUser.role || 'user'}</Text>
-                <Text style={styles.modalText}>Created: {new Date(selectedUser.createdAt || selectedUser.created || Date.now()).toLocaleString()}</Text>
+                <Text style={styles.modalText}>Created: {formatCreated(selectedUser)}</Text>
                 <View style={{ marginTop: 12, display: 'flex', flexDirection: 'row', gap: 8 }}>
                   <Button title="Close" onPress={() => setModalVisible(false)} />
                   <Button title="Lock" onPress={() => { handleLockUser(selectedUser._id || selectedUser.id); setModalVisible(false); }} color="#d9534f" />
