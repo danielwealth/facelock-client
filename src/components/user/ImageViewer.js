@@ -10,7 +10,7 @@ export default function ImageViewer() {
   const [status, setStatus] = useState('Enter your secret key to unlock');
   const [loading, setLoading] = useState(false);
 
-  const API_BASE = process.env.REACT_APP_API_URL || '';
+  const API_BASE = process.env.REACT_APP_API_URI || '';
 
   const handleUnlock = async () => {
     if (!key) {
