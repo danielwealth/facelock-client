@@ -1,66 +1,46 @@
-// client/src/components/user/UserDashboard.js
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native-web';
-import LogoutButton from '../LogoutButton';
-import { getToken } from '../../services/auth';
+// client/src/components/user/UserDashboard.jsx
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native-web';
 
-export default function UserDashboard({ setView }) {
-  const [userEmail, setUserEmail] = useState(null);
-
-  useEffect(() => {
-    const token = getToken();
-    if (!token) return;
-
-    try {
-      const parts = token.split('.');
-      if (parts.length < 2) return;
-      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-
-      // defer state update to avoid synchronous setState in effect
-      const t = setTimeout(() => {
-        setUserEmail(payload?.email || payload?.sub || null);
-      }, 0);
-
-      return () => clearTimeout(t);
-    } catch (err) {
-      // ignore decode errors — token may not be a JWT or may not contain email
-      const t = setTimeout(() => setUserEmail(null), 0);
-      return () => clearTimeout(t);
-    }
-  }, []);
-
+export default function UserDashboard({ setRoute }) {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>User Dashboard</Text>
+      <Text style={styles.subheading}>Choose an action:</Text>
 
-      {userEmail ? (
-        <Text style={styles.welcome}>
-          Signed in as <Text style={{ fontWeight: '700' }}>{userEmail}</Text>
-        </Text>
-      ) : (
-        <Text style={styles.message}>
-          Welcome! You can upload images, view history, and manage your account here.
-        </Text>
-      )}
+      <TouchableOpacity style={styles.button} onPress={() => setRoute('upload')}>
+        <Text style={styles.buttonText}>Upload Document</Text>
+      </TouchableOpacity>
 
-      <View style={styles.actions}>
-        <Button title="Upload Image" onPress={() => setView('upload')} />
-        <Button title="Image Viewer" onPress={() => setView('viewer')} />
-        <Button title="Match History" onPress={() => setView('history')} />
-      </View>
+      <TouchableOpacity style={styles.button} onPress={() => setRoute('viewer')}>
+        <Text style={styles.buttonText}>View Uploaded Images</Text>
+      </TouchableOpacity>
 
-      <View style={styles.logout}>
-        <LogoutButton setView={setView} />
-      </View>
+      <TouchableOpacity style={styles.button} onPress={() => setRoute('history')}>
+        <Text style={styles.buttonText}>Verification History</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => setRoute('document-verification')}>
+        <Text style={styles.buttonText}>Start Document Verification</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => setRoute('reset')}>
+        <Text style={styles.buttonText}>Reset Password</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  heading: { fontSize: 22, fontWeight: 'bold', marginBottom: 12 },
-  welcome: { fontSize: 16, marginBottom: 16 },
-  message: { fontSize: 16, marginBottom: 20 },
-  actions: { gap: 12, marginBottom: 20 },
-  logout: { marginTop: 20 },
+  container: { padding: 16 },
+  heading: { fontSize: 20, fontWeight: '700', marginBottom: 12 },
+  subheading: { fontSize: 14, marginBottom: 12 },
+  button: {
+    backgroundColor: '#0b5cff',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 6,
+    marginBottom: 10,
+  },
+  buttonText: { color: '#fff', fontWeight: '600', textAlign: 'center' },
 });
