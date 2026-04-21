@@ -1,6 +1,5 @@
-// client/src/components/user/UploadDocument.jsx
 import React, { useState, useRef } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native-web';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native-web';
 import Webcam from 'react-webcam';
 import { postVerifyDocument } from '../../services/verify';
 import { getToken } from '../../services/auth';
@@ -15,7 +14,6 @@ export default function UploadDocument({ onUploaded }) {
   const webcamRef = useRef(null);
   const token = getToken();
 
-  // Handle ID file upload
   const handleFileChange = (e) => {
     const f = e.target.files && e.target.files[0];
     setFile(f || null);
@@ -33,15 +31,17 @@ export default function UploadDocument({ onUploaded }) {
     }
   };
 
-  // Capture selfie from webcam
   const captureSelfie = async () => {
-    const imageSrc = webcamRef.current.getScreenshot();
-    if (!imageSrc) return;
+    const imageSrc = webcamRef.current?.getScreenshot();
+    if (!imageSrc) {
+      setStatus({ error: 'Could not capture selfie' });
+      return;
+    }
     const blob = await fetch(imageSrc).then(res => res.blob());
     setSelfie(blob);
+    setStatus({ success: true, data: 'Selfie captured!' });
   };
 
-  // Submit both ID and selfie
   const submit = async () => {
     if (!file || !selfie) {
       setStatus({ error: 'Both ID document and selfie are required' });
@@ -58,7 +58,7 @@ export default function UploadDocument({ onUploaded }) {
       const res = await postVerifyDocument(form, opts);
 
       setStatus({ success: true, data: res });
-      if (onUploaded) onUploaded(res); // pass job back to dashboard
+      if (onUploaded) onUploaded(res);
       setFile(null);
       setSelfie(null);
       setPreviewUrl(null);
@@ -79,25 +79,24 @@ export default function UploadDocument({ onUploaded }) {
       </label>
 
       {previewUrl && (
-        <div style={{ marginTop: 8 }}>
-          <img src={previewUrl} alt="preview" style={styles.preview} />
-        </div>
+        <img src={previewUrl} alt="preview" style={styles.preview} />
       )}
 
-      <div style={{ marginTop: 12 }}>
-        <Webcam
-          audio={false}
-          ref={webcamRef}
-          screenshotFormat="image/png"
-          width={320}
-          height={240}
-        />
-        <Button title="Capture Selfie" onPress={captureSelfie} />
-      </div>
+      <Webcam
+        audio={false}
+        ref={webcamRef}
+        screenshotFormat="image/png"
+        width={320}
+        height={240}
+      />
 
-      <div style={{ marginTop: 12 }}>
-        <Button title={loading ? 'Submitting...' : 'Submit'} onPress={submit} disabled={loading} />
-      </div>
+      <TouchableOpacity style={styles.button} onPress={captureSelfie}>
+        <Text style={styles.buttonText}>Capture Selfie</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={submit} disabled={loading}>
+        <Text style={styles.buttonText}>{loading ? 'Submitting...' : 'Submit'}</Text>
+      </TouchableOpacity>
 
       {status?.error && <Text style={styles.error}>{status.error}</Text>}
       {status?.success && (
@@ -115,6 +114,8 @@ const styles = StyleSheet.create({
   heading: { fontSize: 18, marginBottom: 12 },
   label: { display: 'block', marginBottom: 8 },
   preview: { maxWidth: 320, maxHeight: 240, borderRadius: 6 },
+  button: { backgroundColor: '#0b5cff', padding: 10, marginTop: 10, borderRadius: 6 },
+  buttonText: { color: '#fff', fontWeight: '600', textAlign: 'center' },
   error: { color: 'red', marginTop: 12 },
   ok: { color: '#0a7', marginTop: 12 },
   pre: { background: '#f6f6f6', padding: 8, borderRadius: 4, overflowX: 'auto' },
