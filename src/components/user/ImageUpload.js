@@ -13,7 +13,7 @@ export default function ImageUpload({ setView }) {
   const [message, setMessage] = useState('');
   const [processing, setProcessing] = useState(false);
 
-  const API_BASE = process.env.REACT_APP_API_URL || '';
+  const API_BASE = process.env.REACT_APP_API_URI || '';
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
