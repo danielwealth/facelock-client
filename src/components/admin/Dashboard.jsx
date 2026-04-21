@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native-web';
 
-export default function AdminDashboard({ setRoute }) {
+export default function Dashboard({ setRoute }) {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Admin Dashboard</Text>
