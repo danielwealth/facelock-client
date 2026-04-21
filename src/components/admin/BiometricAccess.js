@@ -4,7 +4,7 @@ import { View, Text, Button, StyleSheet } from 'react-native-web';
 import * as faceapi from 'face-api.js';
 import { loadModels } from '../../faceApiHelpers';
 
-const API_BASE = process.env.REACT_APP_API_URL || '';
+const API_BASE = process.env.REACT_APP_API_URI || '';
 
 export default function BiometricAccess({ setView }) {
   const videoRef = useRef(null);
