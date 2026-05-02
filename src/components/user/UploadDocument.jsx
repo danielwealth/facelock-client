@@ -1,9 +1,7 @@
 // client/src/components/user/UploadDocument.js
-
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native-web';
 import Webcam from 'react-webcam';
-import { postVerifyDocument } from '../../services/verify';
 import { getToken } from '../../services/auth';
 
 export default function UploadDocument({ onUploaded }) {
@@ -48,6 +46,26 @@ export default function UploadDocument({ onUploaded }) {
     setStatus({ success: true, data: '📸 Selfie captured!' });
   };
 
+  // Helper: get pre-signed URL from backend
+  async function getUploadUrl(filename, filetype, category) {
+    const res = await fetch('/s3/get-upload-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ filename, filetype, category }),
+    });
+    return res.json();
+  }
+
+  // Helper: upload file directly to S3
+  async function uploadToS3(uploadUrl, file) {
+    await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    });
+  }
+
   // Submit both ID + selfie
   const submit = async () => {
     if (!file || !selfie) {
@@ -57,14 +75,27 @@ export default function UploadDocument({ onUploaded }) {
 
     setLoading(true);
     try {
-      const form = new FormData();
-      form.append('document', file, file.name);
-      form.append('documentType', 'id'); // distinguish type
-      form.append('selfie', selfie, 'selfie.png');
-      form.append('selfieType', 'selfie'); // distinguish type
+      // Step 1: Get pre-signed URLs
+      const idUpload = await getUploadUrl(file.name, file.type, 'id');
+      const selfieUpload = await getUploadUrl('selfie.png', 'image/png', 'selfie');
 
-      const opts = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-      const res = await postVerifyDocument(form, opts);
+      // Step 2: Upload to S3
+      await uploadToS3(idUpload.uploadUrl, file);
+      await uploadToS3(selfieUpload.uploadUrl, selfie);
+
+      // Step 3: Call backend /verify/document with S3 keys
+      const res = await fetch('/verify/document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          idKey: idUpload.key,
+          selfieKey: selfieUpload.key,
+        }),
+      }).then(r => r.json());
 
       setStatus({ success: true, data: res });
       if (onUploaded) onUploaded(res);
@@ -75,6 +106,7 @@ export default function UploadDocument({ onUploaded }) {
       setPreviewUrl(null);
       setSelfiePreview(null);
     } catch (err) {
+      console.error('Upload error:', err);
       setStatus({ error: err?.message || 'Verification failed' });
     } finally {
       setLoading(false);
