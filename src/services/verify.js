@@ -65,22 +65,6 @@ export async function getVerificationHistory(opts = {}) {
   });
   return handleResponse(res);
 }
-// client/src/services/verify.js
-export async function postDocumentWithDescriptor(descriptor, formData, opts = {}) {
-  if (!formData || !(formData instanceof FormData)) {
-    throw new Error('formData must be a FormData instance');
-  }
-
-  const descriptorBlob = new Blob([JSON.stringify(descriptor || {})], { type: 'application/json' });
-  formData.append('descriptor', descriptorBlob);
-
-  const token = opts.token || getToken();
-  const headers = opts.headers || {};
-  const res = await fetch(`${API_BASE}/verify/document-with-descriptor`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: token ? { ...headers, Authorization: `Bearer ${token}` } : headers,
-
 
 export default {
   postVerifyDocument,
