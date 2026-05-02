@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native-web';
 import * as faceapi from 'face-api.js'; // ✅ import face-api.js
 import { getFaceDescriptor, areModelsReady } from '../../faceApiHelpers';
-import { postDocumentWithDescriptor } from '../../services/verify';
 import { getToken } from 'services/auth';
 
 export default function ImageUpload({ setView }) {
