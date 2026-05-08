@@ -70,5 +70,4 @@ export default {
   postVerifyDocument,
   getVerificationStatus,
   getVerificationHistory,
-  getHistory,
 };
