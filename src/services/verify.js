@@ -22,7 +22,7 @@ async function handleResponse(res) {
 
 /**
  * Start document verification (ID + selfie).
- * Expects FormData with { document, selfie } or JSON keys depending on backend.
+ * Expects FormData with { document, selfie }.
  */
 export async function postVerifyDocument(formData, opts = {}) {
   const token = opts.token || getToken();
