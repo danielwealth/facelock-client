@@ -1,7 +1,6 @@
 // client/src/components/user/VerificationStatus.jsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native-web';
-import { getStatus } from '../../services/verify';
 
 export default function VerificationStatus({ job, onClose }) {
   const [status, setStatus] = useState(job);
