@@ -1,6 +1,7 @@
 // client/src/components/user/VerificationStatus.jsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native-web';
+import { getVerificationStatus } from '../../services/verify';
 
 export default function VerificationStatus({ job, onClose }) {
   const [status, setStatus] = useState(job);
@@ -13,7 +14,7 @@ export default function VerificationStatus({ job, onClose }) {
       if (!job?.jobId) return;
       setLoading(true);
       try {
-        const res = await getStatus(job.jobId);
+        const res = await getVerificationStatus(job.jobId);
         setStatus(res);
         // stop polling if job is finished
         if (res.status === 'done' || res.status === 'failed') {
