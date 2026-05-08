@@ -1,6 +1,7 @@
 // client/src/components/user/VerificationHistory.jsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native-web';
+import { getVerificationHistory } from '../../services/verify';
 
 export default function VerificationHistory({ onOpenJob }) {
   const [jobs, setJobs] = useState([]);
@@ -12,8 +13,9 @@ export default function VerificationHistory({ onOpenJob }) {
       setLoading(true);
       setError(null);
       try {
-        const res = await getHistory();
-        setJobs(res.jobs || res || []); // backend may return { jobs: [...] } or just an array
+        const res = await getVerificationHistory();
+        // backend may return { jobs: [...] } or just an array
+        setJobs(res.jobs || res || []);
       } catch (err) {
         console.error('History fetch failed', err);
         setError(err?.message || 'Failed to load history');
