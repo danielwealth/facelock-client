@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native-web';
 import Webcam from 'react-webcam';
 import { getUploadUrl } from '../../services/s3';
-import { postVerifyDocument, getVerificationStatus } from '../../services/verify';
+import { postVerifyDocument } from '../../services/verify';
 
 export default function UploadDocument({ onUploaded }) {
   const [file, setFile] = useState(null);
@@ -61,33 +61,8 @@ export default function UploadDocument({ onUploaded }) {
       const job = await postVerifyDocument({ idKey: idUpload.key, selfieKey: selfieUpload.key });
       setStatus({ success: true, data: job });
 
+      // Pass job result up to parent (UserDashboard handles polling)
       if (onUploaded) onUploaded(job);
-
-      // Step 4: Poll for job status with exponential backoff
-      let delay = 10000; // start at 10s
-      let interval;      // ✅ declare interval properly
-
-      const poll = async () => {
-        try {
-          const result = await getVerificationStatus(job.jobId);
-          setStatus({ success: true, data: result });
-
-          if (result.status !== 'pending') {
-            clearInterval(interval);
-          } else {
-            delay = Math.min(delay * 2, 30000); // cap at 30s
-            clearInterval(interval);
-            interval = setInterval(poll, delay);
-          }
-        } catch (pollErr) {
-          clearInterval(interval);
-          setStatus({ error: pollErr.message || 'Failed to fetch status' });
-        }
-      };
-
-      // initial poll
-      poll();
-      interval = setInterval(poll, delay);
 
       // Reset form
       setFile(null);
@@ -121,7 +96,7 @@ export default function UploadDocument({ onUploaded }) {
       {status?.error && <Text style={styles.error}>{status.error}</Text>}
       {status?.success && (
         <View style={styles.ok}>
-          <Text>✅ Verification status</Text>
+          <Text>✅ Verification started</Text>
           <pre style={styles.pre}>{JSON.stringify(status.data, null, 2)}</pre>
         </View>
       )}
