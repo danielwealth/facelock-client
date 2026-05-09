@@ -156,7 +156,7 @@ export default function App() {
   return (
     <View style={styles.app}>
       <View style={styles.header}>
-        <Text style={styles.brand}>OhidanS DocumentVerifier Portal</Text>
+        <Text style={styles.brand}>Ohidans DocumentVerifier Portal</Text>
         <View style={styles.headerRight}>
           <Text style={styles.apiText}>{API_BASE ? `API: ${API_BASE}` : 'API not configured'}</Text>
           <TouchableOpacity style={styles.headerButton} onPress={checkHealth} disabled={checking}>
