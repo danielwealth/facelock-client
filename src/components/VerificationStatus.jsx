@@ -1,4 +1,5 @@
 // client/src/components/user/VerificationStatus.jsx
+
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native-web';
 import { getVerificationStatus } from '../../services/verify';
@@ -7,18 +8,20 @@ export default function VerificationStatus({ job, onClose }) {
   const [status, setStatus] = useState(job?.status || 'pending');
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [info, setInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const intervalRef = useRef(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
     mountedRef.current = true;
+
     async function pollOnce() {
       if (!job?.jobId) return;
       setLoading(true);
       setError(null);
       try {
-        const res = await getStatus(job.jobId);
+        const res = await getVerificationStatus(job.jobId);
         if (!mountedRef.current) return;
         setStatus(res?.status || 'unknown');
         if (res?.status === 'done' || res?.status === 'failed') {
@@ -37,9 +40,7 @@ export default function VerificationStatus({ job, onClose }) {
     }
 
     function startPolling() {
-      // initial immediate poll
-      pollOnce();
-      // then poll every 3 seconds
+      pollOnce(); // immediate
       stopPolling();
       intervalRef.current = setInterval(pollOnce, 3000);
     }
@@ -63,7 +64,7 @@ export default function VerificationStatus({ job, onClose }) {
     setError(null);
     setLoading(true);
     try {
-      const res = await getStatus(job.jobId);
+      const res = await getVerificationStatus(job.jobId);
       setStatus(res?.status || status);
       if (res?.status === 'done' || res?.status === 'failed') {
         setResult(res);
@@ -78,8 +79,8 @@ export default function VerificationStatus({ job, onClose }) {
   const handleCopyId = async () => {
     try {
       await navigator.clipboard.writeText(job.jobId);
-      setError('Job ID copied to clipboard');
-      setTimeout(() => setError(null), 2000);
+      setInfo('Job ID copied to clipboard');
+      setTimeout(() => setInfo(null), 2000);
     } catch {
       setError('Unable to copy Job ID');
       setTimeout(() => setError(null), 2000);
@@ -96,9 +97,9 @@ export default function VerificationStatus({ job, onClose }) {
       <View style={styles.row}>
         <Text style={styles.label}>Job ID:</Text>
         <Text style={styles.value}>{job.jobId}</Text>
-        <div style={{ marginLeft: 8 }}>
+        <View style={{ marginLeft: 8 }}>
           <Button title="Copy" onPress={handleCopyId} />
-        </div>
+        </View>
       </View>
 
       <View style={styles.row}>
@@ -107,6 +108,7 @@ export default function VerificationStatus({ job, onClose }) {
       </View>
 
       {loading && <Text style={styles.info}>Checking status…</Text>}
+      {info && <Text style={styles.info}>{info}</Text>}
       {error && <Text style={styles.error}>{error}</Text>}
 
       {result && result.status === 'done' && (
@@ -115,11 +117,11 @@ export default function VerificationStatus({ job, onClose }) {
           <Text style={styles.resultValue}>{outcome || 'Completed'}</Text>
 
           {documentUrl ? (
-            <div style={{ marginTop: 8 }}>
+            <View style={{ marginTop: 8 }}>
               <a href={documentUrl} target="_blank" rel="noreferrer" style={styles.link}>
                 Open document
               </a>
-            </div>
+            </View>
           ) : (
             <Text style={styles.info}>No document URL available</Text>
           )}
