@@ -24,7 +24,7 @@ async function handleResponse(res) {
  * Expects JSON with { idKey, selfieKey } or { idKey, secretKey }.
  */
 export async function postVerifyDocument({ idKey, selfieKey, secretKey }, opts = {}) {
-  const token = opts.token || getToken();
+  const token = opts?.token || getToken();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const res = await fetch(`${API_BASE}/verify/document`, {
     method: 'POST',
@@ -37,7 +37,7 @@ export async function postVerifyDocument({ idKey, selfieKey, secretKey }, opts =
 
 export async function getVerificationStatus(jobId, opts = {}) {
   if (!jobId) throw new Error('jobId is required');
-  const token = opts.token || getToken();
+  const token = opts?.token || getToken();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const res = await fetch(`${API_BASE}/verify/document/status/${encodeURIComponent(jobId)}`, {
     method: 'GET',
@@ -48,7 +48,7 @@ export async function getVerificationStatus(jobId, opts = {}) {
 }
 
 export async function getVerificationHistory(opts = {}) {
-  const token = opts.token || getToken();
+  const token = opts?.token || getToken();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const res = await fetch(`${API_BASE}/verify/history`, {
     method: 'GET',
