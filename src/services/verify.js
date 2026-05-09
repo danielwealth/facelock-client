@@ -22,16 +22,19 @@ async function handleResponse(res) {
 
 /**
  * Start document verification (ID + selfie).
- * Expects FormData with { document, selfie }.
+ * Expects JSON with { idKey, selfieKey } from S3 presigned uploads.
  */
-export async function postVerifyDocument(formData, opts = {}) {
+export async function postVerifyDocument({ idKey, selfieKey }, opts = {}) {
+  if (!idKey || !selfieKey) {
+    throw new Error('Both idKey and selfieKey are required');
+  }
   const token = opts.token || getToken();
-  const headers = opts.headers || {};
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const res = await fetch(`${API_BASE}/verify/document`, {
     method: 'POST',
     credentials: 'include',
-    headers: token ? { ...headers, Authorization: `Bearer ${token}` } : headers,
-    body: formData,
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idKey, selfieKey }),
   });
   return handleResponse(res);
 }
