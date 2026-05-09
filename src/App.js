@@ -176,9 +176,6 @@ export default function App() {
             <NavButton label="User Login" onPress={() => setRoute('login')} />
             <NavButton label="Register" onPress={() => setRoute('register')} />
             <NavButton label="User Dashboard" onPress={() => setRoute('user-dashboard')} />
-            <NavButton label="Upload Image" onPress={() => setRoute('upload')} />
-            <NavButton label="Image Viewer" onPress={() => setRoute('viewer')} />
-            <NavButton label="Match History" onPress={() => setRoute('history')} />
             <NavButton label="Document Verification" onPress={() => setRoute('document-verification')} />
             <NavButton label="Biometric Settings" onPress={() => setRoute('admin-settings')} />
           </ScrollView>
