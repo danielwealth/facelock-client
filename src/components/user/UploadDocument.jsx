@@ -64,10 +64,7 @@ export default function UploadDocument({ onUploaded }) {
       if (onUploaded) onUploaded(job);
 
       // Step 4: Poll for job status
-     // Step 4: Poll for job status with backoff
-let delay = 5000; // start at 5s
-let interval;
-
+      let delay = 10000; // start at 10s
 const poll = async () => {
   try {
     const result = await getVerificationStatus(job.jobId);
@@ -76,8 +73,7 @@ const poll = async () => {
     if (result.status !== 'pending') {
       clearInterval(interval);
     } else {
-      // backoff: increase delay up to 15s
-      delay = Math.min(delay * 2, 15000);
+      delay = Math.min(delay * 2, 30000); // cap at 30s
       clearInterval(interval);
       interval = setInterval(poll, delay);
     }
@@ -86,6 +82,7 @@ const poll = async () => {
     setStatus({ error: pollErr.message || 'Failed to fetch status' });
   }
 };
+
 
 // initial poll
 poll();
