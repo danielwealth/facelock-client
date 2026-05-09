@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native-web';
 import Webcam from 'react-webcam';
 import { getToken } from '../../services/auth';
+const API_BASE = process.env.REACT_APP_API_URI || '';
 
 export default function UploadDocument({ onUploaded }) {
   const [file, setFile] = useState(null);
@@ -47,24 +48,25 @@ export default function UploadDocument({ onUploaded }) {
   };
 
   // Helper: get pre-signed URL from backend
-  async function getUploadUrl(filename, filetype, category) {
-    const res = await fetch('/s3/get-upload-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ filename, filetype, category }),
-    });
-    return res.json();
-  }
+async function getUploadUrl(filename, filetype, category) {
+  const res = await fetch(`${API_BASE}/s3/get-upload-url`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ filename, filetype, category }),
+  });
+  return res.json();
+}
 
-  // Helper: upload file directly to S3
-  async function uploadToS3(uploadUrl, file) {
-    await fetch(uploadUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': file.type },
-      body: file,
-    });
-  }
+async function uploadToS3(uploadUrl, file) {
+  await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  });
+}
+
+ 
 
   // Submit both ID + selfie
   const submit = async () => {
