@@ -1,4 +1,3 @@
-// client/src/services/verify.js
 import { getToken } from './auth';
 
 const API_BASE = process.env.REACT_APP_API_URI || '';
@@ -21,32 +20,26 @@ async function handleResponse(res) {
 }
 
 /**
- * Start document verification (ID + selfie).
- * Expects JSON with { idKey, selfieKey } from S3 presigned uploads.
+ * Start document verification (ID + selfie or secret key).
+ * Expects JSON with { idKey, selfieKey } or { idKey, secretKey }.
  */
-export async function postVerifyDocument({ idKey, selfieKey }, opts = {}) {
-  if (!idKey || !selfieKey) {
-    throw new Error('Both idKey and selfieKey are required');
-  }
+export async function postVerifyDocument({ idKey, selfieKey, secretKey }, opts = {}) {
   const token = opts.token || getToken();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const res = await fetch(`${API_BASE}/verify/document`, {
     method: 'POST',
     credentials: 'include',
     headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idKey, selfieKey }),
+    body: JSON.stringify({ idKey, selfieKey, secretKey }),
   });
   return handleResponse(res);
 }
 
-/**
- * Get verification job status by jobId.
- */
 export async function getVerificationStatus(jobId, opts = {}) {
   if (!jobId) throw new Error('jobId is required');
   const token = opts.token || getToken();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const res = await fetch(`${API_BASE}/verify/status/${encodeURIComponent(jobId)}`, {
+  const res = await fetch(`${API_BASE}/verify/document/status/${encodeURIComponent(jobId)}`, {
     method: 'GET',
     credentials: 'include',
     headers,
@@ -54,9 +47,6 @@ export async function getVerificationStatus(jobId, opts = {}) {
   return handleResponse(res);
 }
 
-/**
- * Get verification history for the current user.
- */
 export async function getVerificationHistory(opts = {}) {
   const token = opts.token || getToken();
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
