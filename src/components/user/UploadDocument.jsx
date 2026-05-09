@@ -64,7 +64,7 @@ export default function UploadDocument({ onUploaded }) {
       if (onUploaded) onUploaded(job);
 
       // Step 4: Poll for job status
-      let delay = 10000; // start at 10s
+ let delay = 10000; // start at 10s
 const poll = async () => {
   try {
     const result = await getVerificationStatus(job.jobId);
@@ -82,6 +82,7 @@ const poll = async () => {
     setStatus({ error: pollErr.message || 'Failed to fetch status' });
   }
 };
+     
 
 
 // initial poll
