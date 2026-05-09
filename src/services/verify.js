@@ -27,7 +27,7 @@ async function handleResponse(res) {
 export async function postVerifyDocument(formData, opts = {}) {
   const token = opts.token || getToken();
   const headers = opts.headers || {};
-  const res = await fetch(`${API_BASE}/verify`, {
+  const res = await fetch(`${API_BASE}/verify/document`, {
     method: 'POST',
     credentials: 'include',
     headers: token ? { ...headers, Authorization: `Bearer ${token}` } : headers,
