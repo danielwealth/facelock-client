@@ -156,7 +156,7 @@ export default function App() {
   return (
     <View style={styles.app}>
       <View style={styles.header}>
-        <Text style={styles.brand}>Ohidan&apos;s DocumentChecker Portal</Text>
+        <Text style={styles.brand}>OhidanS DocumentVerifier Portal</Text>
         <View style={styles.headerRight}>
           <Text style={styles.apiText}>{API_BASE ? `API: ${API_BASE}` : 'API not configured'}</Text>
           <TouchableOpacity style={styles.headerButton} onPress={checkHealth} disabled={checking}>
@@ -201,7 +201,7 @@ export default function App() {
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© {new Date().getFullYear()} Ohidan — FacelockApp</Text>
+        <Text style={styles.footerText}>© {new Date().getFullYear()} Ohidans — DocumentVerifier</Text>
       </View>
     </View>
   );
