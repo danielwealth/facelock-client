@@ -1,9 +1,8 @@
-// client/src/components/user/UploadDocument.js
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native-web';
 import Webcam from 'react-webcam';
-import { getToken } from '../../services/auth';
-const API_BASE = process.env.REACT_APP_API_URI || '';
+import { getUploadUrl } from '../../services/s3';
+import { postVerifyDocument } from '../../services/verify';
 
 export default function UploadDocument({ onUploaded }) {
   const [file, setFile] = useState(null);
@@ -14,27 +13,14 @@ export default function UploadDocument({ onUploaded }) {
   const [status, setStatus] = useState(null);
 
   const webcamRef = useRef(null);
-  const token = getToken();
 
-  // Handle ID file selection
   const handleFileChange = (e) => {
     const f = e.target.files && e.target.files[0];
     setFile(f || null);
     setStatus(null);
-
-    if (f && f.type.startsWith('image/')) {
-      try {
-        const url = URL.createObjectURL(f);
-        setPreviewUrl(url);
-      } catch {
-        setPreviewUrl(null);
-      }
-    } else {
-      setPreviewUrl(null);
-    }
+    setPreviewUrl(f && f.type.startsWith('image/') ? URL.createObjectURL(f) : null);
   };
 
-  // Capture selfie from webcam
   const captureSelfie = async () => {
     const imageSrc = webcamRef.current?.getScreenshot();
     if (!imageSrc) {
@@ -47,28 +33,14 @@ export default function UploadDocument({ onUploaded }) {
     setStatus({ success: true, data: '📸 Selfie captured!' });
   };
 
-  // Helper: get pre-signed URL from backend
-async function getUploadUrl(filename, filetype, category) {
-  const res = await fetch(`${API_BASE}/s3/get-upload-url`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ filename, filetype, category }),
-  });
-  return res.json();
-}
+  async function uploadToS3(uploadUrl, file) {
+    await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    });
+  }
 
-async function uploadToS3(uploadUrl, file) {
-  await fetch(uploadUrl, {
-    method: 'PUT',
-    headers: { 'Content-Type': file.type },
-    body: file,
-  });
-}
-
- 
-
-  // Submit both ID + selfie
   const submit = async () => {
     if (!file || !selfie) {
       setStatus({ error: '❌ Both ID document and selfie are required' });
@@ -77,32 +49,17 @@ async function uploadToS3(uploadUrl, file) {
 
     setLoading(true);
     try {
-      // Step 1: Get pre-signed URLs
-      const idUpload = await getUploadUrl(file.name, file.type, 'id');
-      const selfieUpload = await getUploadUrl('selfie.png', 'image/png', 'selfie');
+      const idUpload = await getUploadUrl({ filename: file.name, filetype: file.type, category: 'id' });
+      const selfieUpload = await getUploadUrl({ filename: 'selfie.png', filetype: 'image/png', category: 'selfie' });
 
-      // Step 2: Upload to S3
       await uploadToS3(idUpload.uploadUrl, file);
       await uploadToS3(selfieUpload.uploadUrl, selfie);
 
-      // Step 3: Call backend /verify/document with S3 keys
-      const res = await fetch('/verify/document', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          idKey: idUpload.key,
-          selfieKey: selfieUpload.key,
-        }),
-      }).then(r => r.json());
+      const res = await postVerifyDocument({ idKey: idUpload.key, selfieKey: selfieUpload.key });
 
       setStatus({ success: true, data: res });
       if (onUploaded) onUploaded(res);
 
-      // Reset state
       setFile(null);
       setSelfie(null);
       setPreviewUrl(null);
@@ -118,33 +75,19 @@ async function uploadToS3(uploadUrl, file) {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Upload ID & Capture Selfie</Text>
-
-      {/* ID Upload */}
       <label style={styles.label}>
         ID Document
         <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} />
       </label>
       {previewUrl && <img src={previewUrl} alt="ID preview" style={styles.preview} />}
-
-      {/* Webcam Selfie */}
-      <Webcam
-        audio={false}
-        ref={webcamRef}
-        screenshotFormat="image/png"
-        width={320}
-        height={240}
-      />
+      <Webcam audio={false} ref={webcamRef} screenshotFormat="image/png" width={320} height={240} />
       <TouchableOpacity style={styles.button} onPress={captureSelfie}>
         <Text style={styles.buttonText}>Capture Selfie</Text>
       </TouchableOpacity>
       {selfiePreview && <img src={selfiePreview} alt="Selfie preview" style={styles.preview} />}
-
-      {/* Submit */}
       <TouchableOpacity style={styles.button} onPress={submit} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? 'Submitting...' : 'Submit'}</Text>
       </TouchableOpacity>
-
-      {/* Status messages */}
       {status?.error && <Text style={styles.error}>{status.error}</Text>}
       {status?.success && (
         <View style={styles.ok}>
