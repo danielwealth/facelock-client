@@ -85,7 +85,9 @@ export default function UploadDocument({ onUploaded }) {
         <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} />
       </label>
       {previewUrl && <img src={previewUrl} alt="ID preview" style={styles.preview} />}
-      <Webcam audio={false} ref={webcamRef} screenshotFormat="image/png" width={320} height={240} />
+      <Webcam
+  audio={false} ref={webcamRef} screenshotFormat="image/png" style={styles.webcam}/>
+
       <TouchableOpacity style={styles.button} onPress={captureSelfie}>
         <Text style={styles.buttonText}>Capture Selfie</Text>
       </TouchableOpacity>
@@ -105,13 +107,74 @@ export default function UploadDocument({ onUploaded }) {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  heading: { fontSize: 18, marginBottom: 12 },
-  label: { display: 'block', marginBottom: 8 },
-  preview: { maxWidth: 320, maxHeight: 240, borderRadius: 6, marginTop: 8 },
-  button: { backgroundColor: '#0b5cff', padding: 10, marginTop: 10, borderRadius: 6 },
-  buttonText: { color: '#fff', fontWeight: '600', textAlign: 'center' },
-  error: { color: 'red', marginTop: 12 },
-  ok: { color: '#0a7', marginTop: 12 },
-  pre: { background: '#f6f6f6', padding: 8, borderRadius: 4, overflowX: 'auto' },
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+    backgroundColor: '#fff',
+    justifyContent: 'flex-start',
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  label: {
+    display: 'block',
+    marginBottom: 12,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+  },
+  preview: {
+    width: '100%',          // scale to screen width
+    maxHeight: 240,
+    borderRadius: 8,
+    marginTop: 12,
+    objectFit: 'contain',
+  },
+  webcam: {
+    width: '100%',          // responsive webcam
+    maxWidth: 400,          // cap size on larger screens
+    aspectRatio: 4/3,       // maintain aspect ratio
+    borderRadius: 8,
+    marginTop: 12,
+    alignSelf: 'center',
+  },
+  button: {
+    backgroundColor: '#0b5cff',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 14,
+    width: '100%',          // full width on mobile
+    alignSelf: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  error: {
+    color: 'red',
+    marginTop: 16,
+    textAlign: 'center',
+    fontSize: 15,
+  },
+  ok: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  pre: {
+    backgroundColor: '#f6f6f6',
+    padding: 10,
+    borderRadius: 6,
+    overflowX: 'auto',
+    width: '100%',
+    fontSize: 13,
+  },
 });
+
