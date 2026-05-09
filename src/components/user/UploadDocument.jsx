@@ -63,32 +63,31 @@ export default function UploadDocument({ onUploaded }) {
 
       if (onUploaded) onUploaded(job);
 
-      // Step 4: Poll for job status
- let delay = 10000; // start at 10s
-const poll = async () => {
-  try {
-    const result = await getVerificationStatus(job.jobId);
-    setStatus({ success: true, data: result });
+      // Step 4: Poll for job status with exponential backoff
+      let delay = 10000; // start at 10s
+      let interval;      // ✅ declare interval properly
 
-    if (result.status !== 'pending') {
-      clearInterval(interval);
-    } else {
-      delay = Math.min(delay * 2, 30000); // cap at 30s
-      clearInterval(interval);
+      const poll = async () => {
+        try {
+          const result = await getVerificationStatus(job.jobId);
+          setStatus({ success: true, data: result });
+
+          if (result.status !== 'pending') {
+            clearInterval(interval);
+          } else {
+            delay = Math.min(delay * 2, 30000); // cap at 30s
+            clearInterval(interval);
+            interval = setInterval(poll, delay);
+          }
+        } catch (pollErr) {
+          clearInterval(interval);
+          setStatus({ error: pollErr.message || 'Failed to fetch status' });
+        }
+      };
+
+      // initial poll
+      poll();
       interval = setInterval(poll, delay);
-    }
-  } catch (pollErr) {
-    clearInterval(interval);
-    setStatus({ error: pollErr.message || 'Failed to fetch status' });
-  }
-};
-     
-
-
-// initial poll
-poll();
-interval = setInterval(poll, delay);
-
 
       // Reset form
       setFile(null);
