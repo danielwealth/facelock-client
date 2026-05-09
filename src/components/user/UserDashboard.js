@@ -12,11 +12,12 @@ export default function UserDashboard() {
   const [error, setError] = useState(null);
   const token = getToken();
 
-  // Poll backend for status every 5 seconds if jobId exists
+  // Poll backend for status with exponential backoff
   useEffect(() => {
     if (!jobId) return;
 
     let isMounted = true;
+    let delay = 10000; // start at 10s
     let interval;
 
     const checkStatus = async () => {
@@ -25,10 +26,14 @@ export default function UserDashboard() {
         if (isMounted) {
           setVerificationResult(res);
 
-          // Stop polling once job is no longer pending
           if (res.status !== 'pending') {
             clearInterval(interval);
             setJobId(null); // reset jobId once complete
+          } else {
+            // backoff: increase delay up to 30s
+            delay = Math.min(delay * 2, 30000);
+            clearInterval(interval);
+            interval = setInterval(checkStatus, delay);
           }
         }
       } catch (err) {
@@ -38,9 +43,9 @@ export default function UserDashboard() {
       }
     };
 
-    // Run immediately, then every 5s
+    // Run immediately, then schedule
     checkStatus();
-    interval = setInterval(checkStatus, 5000);
+    interval = setInterval(checkStatus, delay);
 
     return () => {
       isMounted = false;
