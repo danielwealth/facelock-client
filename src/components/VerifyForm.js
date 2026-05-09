@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native-web';
-import { postVerifyDocument } from '../../services/verify';
-import { getToken } from 'services/auth';
+import { getUploadUrl } from '../../services/s3';       // presigned URL service
+import { getToken } from '../../services/auth';
 
 export default function VerifyForm({ token: propToken }) {
   const [file, setFile] = useState(null);
@@ -13,6 +13,7 @@ export default function VerifyForm({ token: propToken }) {
   const [previewUrl, setPreviewUrl] = useState(null);
 
   const token = propToken || getToken();
+  const API_BASE = process.env.REACT_APP_API_URI || '';
 
   const handleFileChange = (e) => {
     const f = e.target.files && e.target.files[0];
@@ -42,12 +43,33 @@ export default function VerifyForm({ token: propToken }) {
 
     setLoading(true);
     try {
-      const form = new FormData();
-      form.append('document', file);
-      form.append('key', key);
+      // Step 1: Get presigned upload URL from backend
+      const { uploadUrl, key: s3Key } = await getUploadUrl({
+        filename: file.name,
+        filetype: file.type,
+        category: 'id',
+      });
 
-      const opts = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-      const res = await postVerifyDocument(form, opts);
+      // Step 2: Upload file directly to S3
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+
+      // Step 3: Notify backend with S3 key + secret key
+      const res = await fetch(`${API_BASE}/verify/document`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          idKey: s3Key,
+          secretKey: key,
+        }),
+      }).then(r => r.json());
 
       setStatus({ success: true, data: res });
       setFile(null);
