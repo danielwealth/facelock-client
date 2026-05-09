@@ -10,6 +10,7 @@ export default function UserDashboard() {
   const [verificationResult, setVerificationResult] = useState(null);
   const [jobId, setJobId] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // track polling state
   const token = getToken();
 
   // Poll backend for status with exponential backoff
@@ -22,13 +23,15 @@ export default function UserDashboard() {
 
     const checkStatus = async () => {
       try {
+        setLoading(true);
         const res = await getVerificationStatus(jobId, token);
         if (isMounted) {
           setVerificationResult(res);
 
           if (res.status !== 'pending') {
             clearInterval(interval);
-            setJobId(null); // reset jobId once complete
+            setJobId(null);
+            setLoading(false);
           } else {
             // backoff: increase delay up to 30s
             delay = Math.min(delay * 2, 30000);
@@ -40,18 +43,37 @@ export default function UserDashboard() {
         console.error('Polling error:', err);
         setError('Unable to fetch verification status');
         clearInterval(interval);
+        setLoading(false);
       }
     };
 
-    // Run immediately, then schedule
     checkStatus();
     interval = setInterval(checkStatus, delay);
 
     return () => {
       isMounted = false;
       clearInterval(interval);
+      setLoading(false);
     };
   }, [jobId, token]);
+
+  // Manual refresh button
+  const refreshStatus = async () => {
+    if (!jobId) return;
+    try {
+      setLoading(true);
+      const res = await getVerificationStatus(jobId, token);
+      setVerificationResult(res);
+      if (res.status !== 'pending') {
+        setJobId(null);
+      }
+    } catch (err) {
+      console.error('Manual refresh error:', err);
+      setError('Unable to fetch verification status');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -80,6 +102,12 @@ export default function UserDashboard() {
         />
       )}
 
+      {loading && (
+        <View style={styles.progressBar}>
+          <View style={styles.progressFill} />
+        </View>
+      )}
+
       {verificationResult && (
         <View style={styles.statusPanel}>
           <Text style={styles.statusHeading}>Verification Status</Text>
@@ -89,6 +117,11 @@ export default function UserDashboard() {
             {verificationResult.status === 'rejected' && '❌ Rejected'}
             {verificationResult.status === 'error' && '⚠️ Error'}
           </Text>
+          {verificationResult.status === 'pending' && (
+            <TouchableOpacity style={styles.refreshButton} onPress={refreshStatus}>
+              <Text style={styles.refreshText}>Refresh Status</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -113,6 +146,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   buttonText: { color: '#fff', fontWeight: '600', textAlign: 'center' },
+  progressBar: {
+    height: 6,
+    backgroundColor: '#ddd',
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginTop: 12,
+  },
+  progressFill: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#0b5cff',
+    // simple animation effect
+    animation: 'progressAnim 2s infinite linear',
+  },
   statusPanel: {
     marginTop: 20,
     padding: 12,
@@ -121,6 +168,14 @@ const styles = StyleSheet.create({
   },
   statusHeading: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
   statusText: { fontSize: 14 },
+  refreshButton: {
+    marginTop: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#eee',
+    borderRadius: 4,
+  },
+  refreshText: { fontSize: 14, color: '#0b5cff', fontWeight: '600' },
   errorPanel: {
     marginTop: 20,
     padding: 12,
